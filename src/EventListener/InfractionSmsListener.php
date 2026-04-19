@@ -11,7 +11,9 @@ use Doctrine\ORM\Event\PostPersistEventArgs;
 #[AsEntityListener(event: Events::postPersist, entity: Infraction::class)]
 class InfractionSmsListener
 {
-    public function __construct(private SmsService $smsService) {}
+    public function __construct(private SmsService $smsService)
+    {
+    }
 
     public function postPersist(Infraction $infraction, PostPersistEventArgs $args): void
     {
@@ -22,14 +24,14 @@ class InfractionSmsListener
         }
 
         $montant = number_format($infraction->getMontantTotal(), 3, ',', ' ');
-        $date    = $infraction->getDateEcheance()?->format('d/m/Y') ?? 'non définie';
-        $id      = $infraction->getId();
+        $date = $infraction->getDateEcheance()?->format('d/m/Y') ?? 'non définie';
+        $id = $infraction->getId();
 
         $message = "KbadhaPay - Nouvelle infraction enregistree\n"
-                 . "Ref : #$id\n"
-                 . "Montant : $montant DT\n"
-                 . "Echeance : $date\n"
-                 . "Paiement : kbadhapay.tn/citizen/infraction/$id/payer";
+            . "Ref : #$id\n"
+            . "Montant : $montant DT\n"
+            . "Echeance : $date\n"
+            . "Paiement :http://192.168.1.7:8000/citizen/infraction/$id/payer";
 
         $this->smsService->send($user->getTelephone(), $message);
     }

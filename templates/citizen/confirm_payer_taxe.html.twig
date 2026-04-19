@@ -1,0 +1,63 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Confirmer le Paiement de la Taxe — kbadhapay{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow-lg border-0 rounded-lg">
+                <div class="card-header bg-primary text-white text-center py-4">
+                    <h3 class="font-weight-light my-2">
+                        <i class="fas fa-file-invoice-dollar mr-2"></i>Règlement de Taxe
+                    </h3>
+                </div>
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <div class="display-4 font-weight-bold text-primary mb-2">
+                            {{ taxe.montant|number_format(3, ',', ' ') }} <small>DT</small>
+                        </div>
+                        <p class="text-muted">Référence de la taxe : #{{ taxe.id }}</p>
+                    </div>
+
+                    <div class="bg-light p-4 rounded-lg mb-4 border-left border-primary" style="border-left-width: 5px !important;">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Désignation :</span>
+                            <span class="font-weight-bold">{{ taxe.nomTaxe }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Type :</span>
+                            <span class="badge badge-primary">{{ taxe.type }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted">Échéance :</span>
+                            <span class="font-weight-bold">{{ taxe.dateEcheance ? taxe.dateEcheance|date('d/m/Y') : 'N/A' }}</span>
+                        </div>
+                    </div>
+
+                    <form action="{{ path('citizen_payer_taxe', {id: taxe.id}) }}" method="POST">
+                        <input type="hidden" name="_token" value="{{ csrf_token('payer_taxe_' ~ taxe.id) }}">
+                        
+                        <div class="alert alert-info small mb-4">
+                            <i class="fas fa-shield-alt mr-2"></i>
+                            Paiement sécurisé par le système national de télé-paiement KbadhaPay.
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-block btn-lg shadow-sm font-weight-bold py-3">
+                            <i class="fas fa-check-circle mr-2"></i>Procéder au paiement
+                        </button>
+                        
+                        <a href="{{ path('citizen_dashboard') }}" class="btn btn-link btn-block text-muted mt-2">
+                            Annuler
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(78, 115, 223, 0.4) !important; }
+</style>
+{% endblock %}

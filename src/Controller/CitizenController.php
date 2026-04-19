@@ -76,13 +76,25 @@ class CitizenController extends AbstractController
     // ─────────────────────────────────────────────────────────────────
     // 3. PAYER UNE TAXE
     // ─────────────────────────────────────────────────────────────────
-    #[Route('/taxe/{id}/payer', name: 'payer_taxe', methods: ['POST'], requirements: ['id' => '\d+'])]
+    #[Route('/taxe/{id}/payer', name: 'payer_taxe', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
     public function payerTaxe(
         int $id,
         TaxeRepository $taxeRepo,
         EntityManagerInterface $em,
         Request $request
     ): Response {
+        $taxe = $taxeRepo->find($id);
+        if (!$taxe || !$taxe->isActif()) {
+            $this->addFlash('danger', 'Taxe introuvable ou inactive.');
+            return $this->redirectToRoute('citizen_taxes');
+        }
+
+        if ($request->isMethod('GET')) {
+            return $this->render('citizen/confirm_payer_taxe.html.twig', [
+                'taxe' => $taxe
+            ]);
+        }
+
         // Vérification CSRF
         if (!$this->isCsrfTokenValid('payer_taxe_' . $id, $request->request->get('_token'))) {
             $this->addFlash('danger', 'Token de sécurité invalide.');
@@ -135,13 +147,31 @@ class CitizenController extends AbstractController
     // ─────────────────────────────────────────────────────────────────
     // 5. PAYER UNE INFRACTION
     // ─────────────────────────────────────────────────────────────────
-    #[Route('/infraction/{id}/payer', name: 'payer_infraction', methods: ['POST'], requirements: ['id' => '\d+'])]
+    #[Route('/infraction/{id}/payer', name: 'payer_infraction', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
     public function payerInfraction(
         int $id,
         InfractionRepository $infraRepo,
         EntityManagerInterface $em,
         Request $request
     ): Response {
+        $infraction = $infraRepo->find($id);
+
+        if (!$infraction || $infraction->getUser() !== $this->getUser()) {
+            $this->addFlash('danger', 'Infraction introuvable ou non autorisée.');
+            return $this->redirectToRoute('citizen_infractions');
+        }
+
+        if ($infraction->getStatut() === 'paye') {
+            $this->addFlash('warning', 'Cette amende est déjà réglée.');
+            return $this->redirectToRoute('citizen_infractions');
+        }
+
+        if ($request->isMethod('GET')) {
+            return $this->render('citizen/confirm_payer_infraction.html.twig', [
+                'infraction' => $infraction
+            ]);
+        }
+
         if (!$this->isCsrfTokenValid('payer_infraction_' . $id, $request->request->get('_token'))) {
             $this->addFlash('danger', 'Token de sécurité invalide.');
             return $this->redirectToRoute('citizen_infractions');
