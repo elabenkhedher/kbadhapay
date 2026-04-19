@@ -24,7 +24,6 @@ services:
             - '../src/Kernel.php'
 
     App\Service\SmsService:
-        public: true
         arguments:
             $twilioSid:  '%env(TWILIO_ACCOUNT_SID)%'
             $twilioToken: '%env(TWILIO_AUTH_TOKEN)%'

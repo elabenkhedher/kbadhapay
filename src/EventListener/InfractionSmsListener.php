@@ -25,11 +25,11 @@ class InfractionSmsListener
         $date    = $infraction->getDateEcheance()?->format('d/m/Y') ?? 'non définie';
         $id      = $infraction->getId();
 
-        $message = "⚠️ KbadhaPay - Nouvelle infraction enregistrée.\n"
-                 . "Référence : #$id\n"
-                 . "Montant   : $montant DT\n"
-                 . "Échéance  : $date\n"
-                 . "Paiement  : https://kbadhapay.tn/citizen/infraction/$id/payer";
+        $message = "KbadhaPay - Nouvelle infraction enregistree\n"
+                 . "Ref : #$id\n"
+                 . "Montant : $montant DT\n"
+                 . "Echeance : $date\n"
+                 . "Paiement : kbadhapay.tn/citizen/infraction/$id/payer";
 
         $this->smsService->send($user->getTelephone(), $message);
     }

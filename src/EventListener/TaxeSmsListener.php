@@ -26,12 +26,12 @@ class TaxeSmsListener
         $id      = $taxe->getId();
         $type    = $taxe->getType() ?? 'Taxe';
 
-        $message = "📋 KbadhaPay - Nouvelle taxe assignée.\n"
-                 . "Type      : $type\n"
-                 . "Référence : #$id\n"
-                 . "Montant   : $montant DT\n"
-                 . "Échéance  : $date\n"
-                 . "Paiement  : https://kbadhapay.tn/citizen/taxe/$id/payer";
+        $message = "KbadhaPay - Nouvelle taxe assignee\n"
+                 . "Type : $type\n"
+                 . "Ref : #$id\n"
+                 . "Montant : $montant DT\n"
+                 . "Echeance : $date\n"
+                 . "Paiement : kbadhapay.tn/citizen/taxe/$id/payer";
 
         $this->smsService->send($user->getTelephone(), $message);
     }
