@@ -1,0 +1,141 @@
+{% extends 'base.html.twig' %}
+{% block title %}Mes Réclamations — kbadhapay{% endblock %}
+
+{% block body %}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-3">
+    <h1 class="h3 mb-0 text-gray-800">
+        <i class="fas fa-envelope mr-2 text-info"></i>Mes Réclamations
+    </h1>
+    <a href="{{ path('citizen_nouvelle_reclamation') }}" class="btn btn-primary btn-sm shadow-sm">
+        <i class="fas fa-plus mr-1"></i>Nouvelle Réclamation
+    </a>
+</div>
+
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb bg-white shadow-sm small">
+        <li class="breadcrumb-item"><a href="{{ path('citizen_dashboard') }}"><i class="fas fa-home mr-1"></i>Accueil</a></li>
+        <li class="breadcrumb-item active">Mes Réclamations</li>
+    </ol>
+</nav>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-info">
+            <i class="fas fa-list mr-2"></i>Toutes mes réclamations
+            <span class="badge badge-info ml-1">{{ reclamations|length }}</span>
+        </h6>
+        <a href="{{ path('citizen_nouvelle_reclamation') }}" class="btn btn-primary btn-sm">
+            <i class="fas fa-plus mr-1"></i>Nouvelle
+        </a>
+    </div>
+    <div class="card-body">
+        {% if reclamations is empty %}
+            <div class="alert alert-info mb-0">
+                <i class="fas fa-info-circle mr-2"></i>Vous n'avez pas encore soumis de réclamation.
+                <a href="{{ path('citizen_nouvelle_reclamation') }}" class="font-weight-bold ml-2">Déposer une réclamation →</a>
+            </div>
+        {% else %}
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered">
+                    <thead class="thead-light">
+                        <tr>
+                            <th style="width:60px">#</th>
+                            <th>Sujet</th>
+                            <th style="width:160px">Date</th>
+                            <th style="width:150px" class="text-center">Statut</th>
+                            <th style="width:100px" class="text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in reclamations %}
+                            <tr>
+                                <td class="text-center text-muted">{{ r.id }}</td>
+                                <td class="font-weight-bold">{{ r.sujet|default('Réclamation #' ~ r.id) }}</td>
+                                <td class="text-muted small">
+                                    {{ r.dateSoumission ? r.dateSoumission|date('d/m/Y à H:i') : '—' }}
+                                </td>
+                                <td class="text-center">
+                                    {% if r.statut == 'en_cours' %}
+                                        <span class="badge badge-warning text-dark px-3 py-2">
+                                            <i class="fas fa-spinner fa-spin mr-1"></i>En cours
+                                        </span>
+                                    {% elseif r.statut == 'resolue' %}
+                                        <span class="badge badge-success px-3 py-2">
+                                            <i class="fas fa-check-circle mr-1"></i>Résolue
+                                        </span>
+                                    {% elseif r.statut == 'rejetee' %}
+                                        <span class="badge badge-danger px-3 py-2">
+                                            <i class="fas fa-times-circle mr-1"></i>Rejetée
+                                        </span>
+                                    {% else %}
+                                        <span class="badge badge-secondary px-3 py-2">{{ r.statut }}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    <button class="btn btn-info btn-sm"
+                                            data-toggle="modal"
+                                            data-target="#reclamationModal{{ r.id }}"
+                                            title="Consulter">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {# Boucle pour générer les Modals correctement en dehors du tableau HTML #}
+            {% for r in reclamations %}
+                <div class="modal fade" id="reclamationModal{{ r.id }}" tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal-dialog modal-lg" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header bg-info text-white">
+                                <h5 class="modal-title">
+                                    <i class="fas fa-envelope mr-2"></i>Réclamation #{{ r.id }}
+                                </h5>
+                                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <table class="table table-borderless">
+                                    <tr>
+                                        <th class="text-muted" style="width:30%">Sujet</th>
+                                        <td class="font-weight-bold">{{ r.sujet|default('Réclamation #' ~ r.id) }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th class="text-muted">Date de soumission</th>
+                                        <td>{{ r.dateSoumission ? r.dateSoumission|date('d/m/Y à H:i') : '—' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th class="text-muted">Statut</th>
+                                        <td>
+                                            {% if r.statut == 'en_cours' %}
+                                                <span class="badge badge-warning text-dark">En cours de traitement</span>
+                                            {% elseif r.statut == 'resolue' %}
+                                                <span class="badge badge-success">Résolue</span>
+                                            {% elseif r.statut == 'rejetee' %}
+                                                <span class="badge badge-danger">Rejetée</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th class="text-muted">Description</th>
+                                        <td>{{ r.description }}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

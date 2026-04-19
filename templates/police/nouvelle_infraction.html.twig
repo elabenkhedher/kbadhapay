@@ -1,0 +1,182 @@
+{% extends 'base.html.twig' %}
+{% block title %}Enregistrer une Infraction{% endblock %}
+
+{% block stylesheets %}
+<style>
+/* ── Grille de cartes radio pour le type d'infraction ── */
+.infraction-type-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.infraction-type-grid .custom-control { margin: 0; padding: 0; }
+.infraction-type-grid .custom-control-input { position: absolute; opacity: 0; }
+.infraction-type-card {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 18px 10px; border: 2px solid #e3e6f0; border-radius: 8px;
+    cursor: pointer; transition: all .2s; background: #fff; text-align: center;
+    min-height: 90px;
+}
+.infraction-type-card:hover { border-color: #4e73df; background: #f8f9ff; }
+.infraction-type-card i { font-size: 1.5rem; margin-bottom: 6px; color: #b7c0d0; }
+.infraction-type-card span { font-size: .82rem; font-weight: 700; color: #555; }
+.custom-control-input:checked ~ .infraction-type-card {
+    border-color: #e74a3b; background: #fff5f5; box-shadow: 0 0 0 3px rgba(231,74,59,.15);
+}
+.custom-control-input:checked ~ .infraction-type-card i { color: #e74a3b; }
+.custom-control-input:checked ~ .infraction-type-card span { color: #e74a3b; }
+</style>
+{% endblock %}
+
+{% block body %}
+
+{% for msg in app.flashes('success') %}<div class="alert alert-success alert-dismissible fade show"><i class="fas fa-check-circle mr-2"></i>{{ msg }}<button type="button" class="close" data-dismiss="alert">&times;</button></div>{% endfor %}
+{% for msg in app.flashes('danger') %}<div class="alert alert-danger alert-dismissible fade show"><i class="fas fa-exclamation-circle mr-2"></i>{{ msg }}<button type="button" class="close" data-dismiss="alert">&times;</button></div>{% endfor %}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-3">
+    <h1 class="h3 mb-0 text-gray-800">
+        <i class="fas fa-exclamation-triangle mr-2 text-danger"></i>Enregistrer une Infraction
+    </h1>
+    <a href="{{ path('police_recherche_citoyen') }}" class="btn btn-secondary btn-sm">
+        <i class="fas fa-arrow-left mr-1"></i>Changer de citoyen
+    </a>
+</div>
+
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb bg-white shadow-sm small">
+        <li class="breadcrumb-item"><a href="{{ path('police_dashboard') }}"><i class="fas fa-home mr-1"></i>Accueil</a></li>
+        <li class="breadcrumb-item"><a href="{{ path('police_recherche_citoyen') }}">Recherche</a></li>
+        <li class="breadcrumb-item active">Nouvelle Infraction</li>
+    </ol>
+</nav>
+
+{# ── Fiche citoyen identifié ──────────────────────────────────────── #}
+<div class="card border-left-success shadow-sm mb-4">
+    <div class="card-body py-3">
+        <div class="d-flex align-items-center">
+            <i class="fas fa-user-check fa-2x text-success mr-3"></i>
+            <div>
+                <div class="text-xs text-muted text-uppercase font-weight-bold mb-1">Citoyen identifié</div>
+                <div class="d-flex align-items-center">
+                    <span class="font-weight-bold mr-3">
+                        <i class="fas fa-id-card text-muted mr-1"></i>CIN : {{ citoyen.cin }}
+                    </span>
+                </div>
+            </div>
+            <span class="badge badge-success ml-auto px-3 py-2">
+                <i class="fas fa-check mr-1"></i>Identifié
+            </span>
+        </div>
+    </div>
+</div>
+
+{# ── Formulaire infraction ─────────────────────────────────────────── #}
+<div class="row justify-content-center">
+    <div class="col-xl-9 col-lg-11">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 bg-danger text-white">
+                <h6 class="m-0 font-weight-bold">
+                    <i class="fas fa-clipboard-list mr-2"></i>Détails de l'infraction
+                </h6>
+            </div>
+            <div class="card-body">
+                {{ form_start(form, {attr: {novalidate: 'novalidate', id: 'frm-infraction'}}) }}
+
+                    {# ── Type d'infraction : grille de cards radio ── #}
+                    <div class="form-group">
+                        <label class="font-weight-bold d-block mb-3">
+                            Type d'infraction <span class="text-danger">*</span>
+                        </label>
+                        <div class="infraction-type-grid">
+                            {% set typeIcons = {
+                                'radar':         'fa-tachometer-alt',
+                                'feu_rouge':     'fa-traffic-light',
+                                'stationnement': 'fa-parking',
+                                'telephone':     'fa-mobile-alt',
+                                'alcool':        'fa-wine-bottle',
+                                'ceinture':      'fa-user-shield'
+                            } %}
+                            {% set typeLabels = {
+                                'radar':         'Radar',
+                                'feu_rouge':     'Feu rouge',
+                                'stationnement': 'Stationnement',
+                                'telephone':     'Téléphone',
+                                'alcool':        'Alcool',
+                                'ceinture':      'Ceinture'
+                            } %}
+                            {% for choice in form.type_infraction %}
+                                <div class="custom-control">
+                                    {{ form_widget(choice, {attr: {class: 'custom-control-input'}}) }}
+                                    <label class="infraction-type-card" for="{{ choice.vars.id }}">
+                                        <i class="fas {{ typeIcons[choice.vars.value] ?? 'fa-exclamation' }}"></i>
+                                        <span>{{ typeLabels[choice.vars.value] ?? choice.vars.label }}</span>
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        {{ form_errors(form.type_infraction) }}
+                    </div>
+
+                    <hr class="mt-4 mb-4">
+
+                    <div class="row">
+                        {# Lieu #}
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                {{ form_label(form.lieu, null, {label_attr: {class: 'font-weight-bold'}}) }}
+                                {{ form_widget(form.lieu, {attr: {class: 'form-control', placeholder: 'Ex: Avenue Habib Bourguiba, Tunis'}}) }}
+                                {{ form_errors(form.lieu) }}
+                            </div>
+                        </div>
+                        {# Plaque immatriculation #}
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                {{ form_label(form.plaque_immat, null, {label_attr: {class: 'font-weight-bold'}}) }}
+                                {{ form_widget(form.plaque_immat, {attr: {class: 'form-control text-uppercase', placeholder: '123 TUN 2025', maxlength: 20}}) }}
+                                {{ form_errors(form.plaque_immat) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    {# Montant #}
+                    <div class="form-group">
+                        {{ form_label(form.montant_amende, null, {label_attr: {class: 'font-weight-bold'}}) }}
+                        <div class="input-group">
+                            {{ form_widget(form.montant_amende, {attr: {class: 'form-control', placeholder: '0.000'}}) }}
+                            <div class="input-group-append">
+                                <span class="input-group-text font-weight-bold">DT</span>
+                            </div>
+                        </div>
+                        {{ form_errors(form.montant_amende) }}
+                    </div>
+
+                    {# Notes #}
+                    <div class="form-group">
+                        {{ form_label(form.notes, null, {label_attr: {class: 'font-weight-bold'}}) }}
+                        {{ form_widget(form.notes, {attr: {class: 'form-control', rows: 3}}) }}
+                        {{ form_errors(form.notes) }}
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="d-flex justify-content-end">
+                        <a href="{{ path('police_recherche_citoyen') }}" class="btn btn-secondary mr-2">
+                            <i class="fas fa-times mr-1"></i>Annuler
+                        </a>
+                        <button type="submit" class="btn btn-danger btn-lg">
+                            <i class="fas fa-clipboard-check mr-2"></i>Enregistrer l'infraction
+                        </button>
+                    </div>
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+<script>
+// Forcer l'uppercase sur la plaque en temps réel
+document.querySelectorAll('input[name*="plaque"]').forEach(function(el) {
+    el.addEventListener('input', function() { this.value = this.value.toUpperCase(); });
+});
+</script>
+{% endblock %}

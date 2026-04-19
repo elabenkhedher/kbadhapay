@@ -1,0 +1,262 @@
+{% extends 'base.html.twig' %}
+{% block title %}Reporting Financier — kbadhapay{% endblock %}
+
+{% block body %}
+
+{# ── En-tête ─────────────────────────────────────────────────────── #}
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-chart-bar mr-2 text-primary"></i>Reporting Financier
+        </h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb bg-transparent p-0 mb-0" style="font-size:.82rem;">
+                <li class="breadcrumb-item">
+                    <a href="{{ path('admin_dashboard') }}">
+                        <i class="fas fa-home fa-xs mr-1"></i>Accueil
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">Reporting</li>
+            </ol>
+        </nav>
+    </div>
+    <div class="d-flex align-items-center">
+        <div class="text-muted small mr-3">
+            <i class="fas fa-calendar-alt mr-1"></i>{{ "now"|date("d/m/Y H:i") }}
+        </div>
+        <a href="{{ path('admin_reporting_download') }}" class="btn btn-sm btn-danger shadow-sm">
+            <i class="fas fa-file-pdf mr-1"></i>Télécharger PDF
+        </a>
+    </div>
+</div>
+
+{# ════════════════════════════════════════════════════════════════════
+   3 CARTES KPI — Totaux par mode
+════════════════════════════════════════════════════════════════════ #}
+<div class="row mb-4">
+
+    {# Total en ligne #}
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            Total — Paiements en ligne
+                        </div>
+                        <div class="h4 mb-0 font-weight-bold text-gray-800">
+                            {{ totalEnLigne|number_format(3, ',', ' ') }} DT
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-wifi fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Total espèces #}
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            Total — Espèces (Guichet)
+                        </div>
+                        <div class="h4 mb-0 font-weight-bold text-gray-800">
+                            {{ totalEspeces|number_format(3, ',', ' ') }} DT
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-money-bill-wave fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Total chèque #}
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            Total — Chèques (Guichet)
+                        </div>
+                        <div class="h4 mb-0 font-weight-bold text-gray-800">
+                            {{ totalCheque|number_format(3, ',', ' ') }} DT
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-file-alt fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{# ════════════════════════════════════════════════════════════════════
+   TABLEAU — Encaissements par Agent Kbadha
+════════════════════════════════════════════════════════════════════ #}
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="fas fa-users mr-2"></i>Encaissements par Agent Kbadha
+        </h6>
+        <span class="badge badge-primary">{{ parAgent|length }} agent(s)</span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover table-sm mb-0" id="tableParAgent">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Agent (CIN)</th>
+                        <th class="text-center">Nb paiements</th>
+                        <th class="text-right">Total espèces</th>
+                        <th class="text-right">Total chèques</th>
+                        <th class="text-right">Total général</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if parAgent is empty %}
+                        <tr>
+                            <td colspan="5" class="text-center text-muted py-4">
+                                <i class="fas fa-inbox fa-2x d-block mb-2 text-gray-300"></i>
+                                Aucune donnée disponible.
+                            </td>
+                        </tr>
+                    {% else %}
+                        {% set totalGlobalNb      = 0 %}
+                        {% set totalGlobalEspeces = 0 %}
+                        {% set totalGlobalCheque  = 0 %}
+                        {% set totalGlobal        = 0 %}
+                        {% for row in parAgent %}
+                            {% set totalGlobalNb      = totalGlobalNb      + row.nb %}
+                            {% set totalGlobalEspeces = totalGlobalEspeces + row.totalEspeces %}
+                            {% set totalGlobalCheque  = totalGlobalCheque  + row.totalCheque %}
+                            {% set totalGlobal        = totalGlobal        + row.totalGeneral %}
+                            <tr>
+                                <td class="font-weight-bold">
+                                    <i class="fas fa-user-tie mr-1 text-muted"></i>
+                                    {{ row.agent ? row.agent.cin : '— inconnu —' }}
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge badge-secondary">{{ row.nb }}</span>
+                                </td>
+                                <td class="text-right text-success font-weight-bold">
+                                    {{ row.totalEspeces|number_format(3, ',', ' ') }} DT
+                                </td>
+                                <td class="text-right text-info font-weight-bold">
+                                    {{ row.totalCheque|number_format(3, ',', ' ') }} DT
+                                </td>
+                                <td class="text-right">
+                                    <span class="font-weight-bold text-primary">
+                                        {{ row.totalGeneral|number_format(3, ',', ' ') }} DT
+                                    </span>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        {# Ligne totaux #}
+                        <tr class="table-primary font-weight-bold">
+                            <td>
+                                <i class="fas fa-sigma mr-1"></i>TOTAL
+                            </td>
+                            <td class="text-center">{{ totalGlobalNb }}</td>
+                            <td class="text-right">{{ totalGlobalEspeces|number_format(3, ',', ' ') }} DT</td>
+                            <td class="text-right">{{ totalGlobalCheque|number_format(3, ',', ' ') }} DT</td>
+                            <td class="text-right">{{ totalGlobal|number_format(3, ',', ' ') }} DT</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{# ════════════════════════════════════════════════════════════════════
+   TABLEAU — Encaissements par Mois
+════════════════════════════════════════════════════════════════════ #}
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-success">
+            <i class="fas fa-calendar-alt mr-2"></i>Encaissements par Mois
+        </h6>
+        <span class="badge badge-success">{{ parMois|length }} mois</span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover table-sm mb-0" id="tableParMois">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Mois</th>
+                        <th class="text-center">Nb paiements</th>
+                        <th class="text-right">Total (DT)</th>
+                        <th style="width:35%">Progression</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if parMois is empty %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted py-4">
+                                <i class="fas fa-inbox fa-2x d-block mb-2 text-gray-300"></i>
+                                Aucune donnée disponible.
+                            </td>
+                        </tr>
+                    {% else %}
+                        {# Calcul du max pour la barre de progression #}
+                        {% set maxMois = 0 %}
+                        {% for row in parMois %}
+                            {% if row.total > maxMois %}{% set maxMois = row.total %}{% endif %}
+                        {% endfor %}
+
+                        {% set totalMoisNb    = 0 %}
+                        {% set totalMoisTotal = 0 %}
+                        {% for row in parMois %}
+                            {% set totalMoisNb    = totalMoisNb    + row.nb %}
+                            {% set totalMoisTotal = totalMoisTotal + row.total %}
+                            {% set pct = maxMois > 0 ? (row.total / maxMois * 100)|round : 0 %}
+                            <tr>
+                                <td class="font-weight-bold">
+                                    <i class="fas fa-calendar mr-1 text-muted"></i>
+                                    {{ row.label }}
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge badge-secondary">{{ row.nb }}</span>
+                                </td>
+                                <td class="text-right font-weight-bold text-success">
+                                    {{ row.total|number_format(3, ',', ' ') }} DT
+                                </td>
+                                <td>
+                                    <div class="progress" style="height:16px;border-radius:8px;">
+                                        <div class="progress-bar bg-success"
+                                             role="progressbar"
+                                             style="width: {{ pct }}%;"
+                                             aria-valuenow="{{ pct }}"
+                                             aria-valuemin="0"
+                                             aria-valuemax="100">
+                                            {% if pct > 10 %}{{ pct }}%{% endif %}
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        {# Ligne totaux #}
+                        <tr class="table-success font-weight-bold">
+                            <td><i class="fas fa-sigma mr-1"></i>TOTAL</td>
+                            <td class="text-center">{{ totalMoisNb }}</td>
+                            <td class="text-right">{{ totalMoisTotal|number_format(3, ',', ' ') }} DT</td>
+                            <td></td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

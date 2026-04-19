@@ -1,0 +1,182 @@
+{% extends 'base.html.twig' %}
+{% block title %}Mes Préférences de Rappel — kbadhapay{% endblock %}
+
+{% block body %}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">
+        <i class="fas fa-bell mr-2 text-primary"></i>Préférences de Rappel
+    </h1>
+</div>
+
+{% for msg in app.flashes('success') %}
+<div class="alert alert-success"><i class="fas fa-check-circle mr-2"></i>{{ msg }}</div>
+{% endfor %}
+
+<div class="row">
+    <div class="col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Canaux de notification</h6>
+            </div>
+            <div class="card-body">
+                <form action="{{ path('citizen_preferences') }}" method="POST">
+                    <input type="hidden" name="_token" value="{{ csrf_token('preferences') }}">
+
+                    {# Email #}
+                    <div class="custom-control custom-switch mb-3 p-3 border rounded shadow-sm bg-light">
+                        <input type="checkbox" class="custom-control-input" id="pref_email" name="pref_email" {% if prefs.email %}checked{% endif %}>
+                        <label class="custom-control-label font-weight-bold w-100" for="pref_email">
+                            <i class="fas fa-envelope text-primary mr-2"></i>Email
+                            <p class="text-muted small mt-1 font-weight-normal">
+                                Exemple : "Bonjour, rappel: la taxe [Taxe] arrive à échéance le [Date]. Montant: [X] DT."
+                            </p>
+                        </label>
+                    </div>
+
+                    {# SMS #}
+                    <div class="custom-control custom-switch mb-3 p-3 border rounded shadow-sm bg-light">
+                        <input type="checkbox" class="custom-control-input" id="pref_sms" name="pref_sms" {% if prefs.sms %}checked{% endif %}>
+                        <label class="custom-control-label font-weight-bold w-100" for="pref_sms">
+                            <i class="fas fa-sms text-success mr-2"></i>SMS
+                            <p class="text-muted small mt-1 font-weight-normal">
+                                Exemple : "kbadhapay : N'oubliez pas de régler votre amende de [X] DT avant le [Date]. Lien: bit.ly/123"
+                            </p>
+                        </label>
+                    </div>
+
+                    {# Web Push #}
+                    <div class="custom-control custom-switch mb-4 p-3 border rounded shadow-sm bg-light">
+                        <input type="checkbox" class="custom-control-input" id="pref_push" name="pref_push" {% if prefs.push %}checked{% endif %}>
+                        <label class="custom-control-label font-weight-bold w-100" for="pref_push">
+                            <i class="fas fa-mobile-alt text-info mr-2"></i>Notifications Web Push
+                            <p class="text-muted small mt-1 font-weight-normal">
+                                Recevez une alerte directement sur votre ordinateur ou téléphone (nécessite l'autorisation du navigateur).
+                            </p>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <i class="fas fa-save mr-2"></i>Enregistrer mes préférences
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Prochaines notifications planifiées</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-sm">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Date</th>
+                                <th>Titre</th>
+                                <th>Canal</th>
+                                <th>Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for notif in notifications %}
+                            <tr>
+                                <td>{{ notif.datePlanifiee|date('d/m/Y H:i') }}</td>
+                                <td>{{ notif.titre }}</td>
+                                <td>
+                                    {% if notif.canal == 'sms' %}<span class="badge badge-success">SMS</span>{% endif %}
+                                    {% if notif.canal == 'email' %}<span class="badge badge-primary">Email</span>{% endif %}
+                                    {% if notif.canal == 'push' %}<span class="badge badge-info">Push</span>{% endif %}
+                                </td>
+                                <td>
+                                    {% if notif.statut == 'planifie' %}
+                                        <span class="badge badge-warning">Planifié</span>
+                                    {% elseif notif.statut == 'envoye' %}
+                                        <span class="badge badge-success">Envoyé</span>
+                                    {% else %}
+                                        <span class="badge badge-secondary">Ignoré</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted">Aucune notification planifiée.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const pushSwitch = document.getElementById('pref_push');
+    
+    // Replace with your VAPID public key
+    const applicationServerKey = 'BDz_s2IMAE-uvX3bWtnhhAyAdwkITRIFke4l2Sin6MXuarQwAzjMlpSEn-ql2LcWQ_RMTA4bdjkB9r3TCUV8za0';
+
+    function urlB64ToUint8Array(base64String) {
+        const padding = '='.repeat((4 - base64String.length % 4) % 4);
+        const base64 = (base64String + padding)
+            .replace(/\-/g, '+')
+            .replace(/_/g, '/');
+        const rawData = window.atob(base64);
+        const outputArray = new Uint8Array(rawData.length);
+        for (let i = 0; i < rawData.length; ++i) {
+            outputArray[i] = rawData.charCodeAt(i);
+        }
+        return outputArray;
+    }
+
+    pushSwitch.addEventListener('change', async (e) => {
+        if (e.target.checked) {
+            if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+                alert("Les notifications Push ne sont pas supportées par votre navigateur.");
+                e.target.checked = false;
+                return;
+            }
+
+            try {
+                const permission = await Notification.requestPermission();
+                if (permission !== 'granted') {
+                    alert("Vous devez autoriser les notifications dans votre navigateur.");
+                    e.target.checked = false;
+                    return;
+                }
+
+                const registration = await navigator.serviceWorker.register('/sw.js');
+                
+                let subscription = await registration.pushManager.getSubscription();
+                if (!subscription) {
+                    subscription = await registration.pushManager.subscribe({
+                        userVisibleOnly: true,
+                        applicationServerKey: urlB64ToUint8Array(applicationServerKey)
+                    });
+                }
+
+                // Send subscription to backend
+                await fetch('{{ path('citizen_push_subscribe') }}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(subscription)
+                });
+                console.log("Push subscription saved.");
+
+            } catch (err) {
+                console.error("Failed to subscribe to Push:", err);
+                e.target.checked = false;
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

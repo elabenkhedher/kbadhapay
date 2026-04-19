@@ -1,0 +1,38 @@
+/* Custom CSS pour kbadhapay (basé sur sb-admin-2) */
+
+/* Amélioration visuelle de la Sidebar */
+.sidebar-brand-text {
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+/* Sous-titre de la marque */
+.sidebar-brand-subtitle {
+    font-size: 0.65rem;
+    opacity: 0.7;
+    letter-spacing: 2px;
+}
+
+/* Effet au survol des liens de navigation dans la sidebar */
+.nav-item .nav-link:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+/* Amélioration de la taille des KPIs */
+.kpi-value {
+    font-size: 2rem !important; /* Force la taille pour plus d'impact */
+}
+
+/* Petites barres de progression */
+.progress-sm {
+    height: .5rem;
+}
+
+/* Ajustements mineurs de marges pour les tableaux */
+.card-header-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}

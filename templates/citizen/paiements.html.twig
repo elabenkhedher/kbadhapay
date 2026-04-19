@@ -1,0 +1,230 @@
+{% extends 'base.html.twig' %}
+{% block title %}Mes Paiements — kbadhapay{% endblock %}
+
+{% block body %}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-3">
+    <h1 class="h3 mb-0 text-gray-800">
+        <i class="fas fa-credit-card mr-2 text-success"></i>Historique des Paiements
+    </h1>
+</div>
+
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb bg-white shadow-sm small">
+        <li class="breadcrumb-item"><a href="{{ path('citizen_dashboard') }}"><i class="fas fa-home mr-1"></i>Accueil</a></li>
+        <li class="breadcrumb-item active">Mes Paiements</li>
+    </ol>
+</nav>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-success">
+            <i class="fas fa-history mr-2"></i>Tous mes paiements
+            <span class="badge badge-success ml-1">{{ paiements|length }}</span>
+        </h6>
+    </div>
+    <div class="card-body">
+        {% if paiements is empty %}
+            <div class="alert alert-info mb-0">
+                <i class="fas fa-info-circle mr-2"></i>Aucun paiement effectué pour le moment.
+            </div>
+        {% else %}
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered table-sm">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Référence</th>
+                            <th>Type</th>
+                            <th class="text-right">Montant</th>
+                            <th class="text-center">Mode</th>
+                            <th>Date</th>
+                            <th class="text-center">Statut</th>
+                            <th class="text-center">Reçu</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in paiements %}
+                            <tr>
+                                <td class="font-weight-bold small text-primary">{{ p.reference ?? '#' ~ p.id }}</td>
+                                <td class="small">
+                                    {% if p.taxe %}
+                                        <i class="fas fa-file-invoice-dollar mr-1 text-primary"></i>{{ p.taxe.nomTaxe }}
+                                    {% elseif p.infraction %}
+                                        <i class="fas fa-exclamation-triangle mr-1 text-warning"></i>Amende
+                                    {% else %}
+                                        {{ p.sujet ?? '—' }}
+                                    {% endif %}
+                                </td>
+                                <td class="text-right font-weight-bold">{{ p.montant ? p.montant|number_format(3, ',', ' ') ~ ' DT' : '—' }}</td>
+                                <td class="text-center">
+                                    {% if p.modePaiement == 'en_ligne' %}
+                                        <span class="badge badge-primary px-2"><i class="fas fa-wifi mr-1"></i>En ligne</span>
+                                    {% elseif p.modePaiement == 'especes' %}
+                                        <span class="badge badge-secondary px-2">Espèces</span>
+                                    {% elseif p.modePaiement == 'cheque' %}
+                                        <span class="badge px-2" style="background:#6f42c1;color:#fff;">Chèque</span>
+                                    {% else %}
+                                        <span class="badge badge-light border">{{ p.modePaiement ?? '—' }}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="small text-muted">{{ p.datePaiement ? p.datePaiement|date('d/m/Y') : '—' }}</td>
+                                <td class="text-center">
+                                    {% if p.statut == 'paye' %}
+                                        <span class="badge badge-success px-2"><i class="fas fa-check mr-1"></i>Payé</span>
+                                    {% else %}
+                                        <span class="badge badge-warning text-dark px-2">{{ p.statut }}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    <button class="btn btn-light btn-sm border" title="Télécharger le reçu"
+                                            onclick="generateReceipt(this)"
+                                            data-ref="{{ p.reference ?? p.id }}"
+                                            data-type="{% if p.taxe %}Taxe ({{ p.taxe.nomTaxe }}){% elseif p.infraction %}Amende{% else %}{{ p.sujet ?? 'Autre' }}{% endif %}"
+                                            data-montant="{{ p.montant ? p.montant|number_format(3, ',', ' ') : '0,000' }}"
+                                            data-mode="{{ p.modePaiement == 'en_ligne' ? 'En ligne' : (p.modePaiement == 'especes' ? 'Espèces' : (p.modePaiement == 'cheque' ? 'Chèque' : p.modePaiement)) }}"
+                                            data-date="{{ p.datePaiement ? p.datePaiement|date('d/m/Y') : '—' }}"
+                                            data-statut="{{ p.statut == 'paye' ? 'Payé' : p.statut }}"
+                                            data-nom="{{ app.user.nom is defined ? app.user.nom : app.user.userIdentifier }}">
+                                        <i class="fas fa-download text-muted"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div aria-live="polite" aria-atomic="true" style="position: fixed; bottom: 20px; right: 20px; z-index: 1050;">
+    <div id="receiptToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true" data-delay="3000">
+        <div class="toast-header bg-success text-white">
+            <i class="fas fa-check-circle mr-2"></i>
+            <strong class="mr-auto">Succès</strong>
+            <button type="button" class="ml-2 mb-1 close text-white" data-dismiss="toast" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="toast-body">
+            Reçu téléchargé avec succès ✅
+        </div>
+    </div>
+</div>
+
+<!-- Hidden Receipt Template -->
+<div class="d-none">
+    <div id="receipt-template" style="width: 210mm; padding: 20mm; background-color: #fff; font-family: 'Helvetica', 'Arial', sans-serif; color: #333;">
+        
+        <!-- Header -->
+        <div style="text-align: center; border-bottom: 2px solid #4e73df; padding-bottom: 20px; margin-bottom: 30px;">
+            <div style="font-size: 24px; font-weight: bold; color: #4e73df; letter-spacing: 1px;">KBADHAPAY</div>
+            <div style="font-size: 14px; color: #858796; margin-top: 5px;">Municipalité de Tunis</div>
+            <h2 style="margin-top: 20px; font-size: 20px; color: #333;">REÇU DE PAIEMENT OFFICIEL</h2>
+        </div>
+
+        <!-- Body -->
+        <div style="margin-bottom: 40px; font-size: 14px;">
+            <p><strong>Nom du contribuable :</strong> <span id="r-nom"></span></p>
+            <p><strong>Référence du paiement :</strong> <span id="r-ref"></span></p>
+            <p><strong>Type :</strong> <span id="r-type"></span></p>
+            <p><strong>Montant payé :</strong> <strong style="font-size: 16px; color: #1cc88a;" id="r-montant"></strong> DT</p>
+            <p><strong>Mode de paiement :</strong> <span id="r-mode"></span></p>
+            <p><strong>Date de paiement :</strong> <span id="r-date"></span></p>
+            <p><strong>Statut :</strong> <span style="color: #1cc88a;">✅ <span id="r-statut"></span></span></p>
+        </div>
+
+        <!-- QR Code Section -->
+        <div style="text-align: center; margin-bottom: 40px;">
+            <div id="r-qrcode" style="display: inline-block; padding: 10px; border: 1px solid #e3e6f0; border-radius: 5px;"></div>
+            <p style="font-size: 11px; color: #858796; margin-top: 10px;">Scannez pour vérifier l'authenticité du paiement</p>
+        </div>
+
+        <!-- Footer -->
+        <div style="position: absolute; bottom: 20mm; left: 20mm; right: 20mm; text-align: center; border-top: 1px solid #e3e6f0; padding-top: 20px;">
+            <p style="font-size: 12px; font-weight: bold; color: #5a5c69; margin-bottom: 5px;">Ce reçu est généré automatiquement et fait foi de paiement</p>
+            <p style="font-size: 11px; color: #858796;">Cachet numérique : Municipalité de Tunis - KBADHAPAY</p>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    
+    <!-- html2pdf.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- qrcode.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <script>
+        function generateReceipt(btn) {
+            // Retrieve data from button attributes
+            const ref = btn.getAttribute('data-ref');
+            const type = btn.getAttribute('data-type');
+            const montant = btn.getAttribute('data-montant');
+            const mode = btn.getAttribute('data-mode');
+            const date = btn.getAttribute('data-date');
+            const statut = btn.getAttribute('data-statut');
+            const nom = btn.getAttribute('data-nom');
+
+            // Populate hidden template
+            document.getElementById('r-nom').innerText = nom;
+            document.getElementById('r-ref').innerText = ref;
+            document.getElementById('r-type').innerText = type;
+            document.getElementById('r-montant').innerText = montant;
+            document.getElementById('r-mode').innerText = mode;
+            document.getElementById('r-date').innerText = date;
+            document.getElementById('r-statut').innerText = statut;
+
+            // Generate QR Code
+            const qrContainer = document.getElementById('r-qrcode');
+            qrContainer.innerHTML = ''; // Clear previous QR code
+            
+            // On utilise l'URL absolue de vérification pour le QR Code
+            const verifyUrl = window.location.origin + '/verify/payment/' + ref;
+            
+            new QRCode(qrContainer, {
+                text: verifyUrl,
+                width: 128,
+                height: 128,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.M
+            });
+
+            // Configure html2pdf
+            const element = document.getElementById('receipt-template');
+            const filename = 'recu-' + ref + '-' + date.replace(/\//g, '') + '.pdf';
+            const opt = {
+                margin:       0,
+                filename:     filename,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            // Change button state to indicate loading
+            const originalIcon = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin text-muted"></i>';
+            btn.disabled = true;
+
+            // Generate and save PDF
+            html2pdf().set(opt).from(element).save().then(() => {
+                // Restore button state
+                btn.innerHTML = originalIcon;
+                btn.disabled = false;
+                
+                // Show success toast
+                $('#receiptToast').toast('show');
+            }).catch(err => {
+                console.error("Erreur lors de la génération du PDF :", err);
+                btn.innerHTML = originalIcon;
+                btn.disabled = false;
+                alert("Une erreur s'est produite lors du téléchargement.");
+            });
+        }
+    </script>
+{% endblock %}

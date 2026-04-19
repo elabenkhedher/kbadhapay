@@ -1,0 +1,78 @@
+{% extends 'base.html.twig' %}
+{% block title %}Mes Taxes — kbadhapay{% endblock %}
+
+{% block body %}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-3">
+    <h1 class="h3 mb-0 text-gray-800">
+        <i class="fas fa-file-invoice-dollar mr-2 text-primary"></i>Mes Taxes
+    </h1>
+</div>
+
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb bg-white shadow-sm small">
+        <li class="breadcrumb-item"><a href="{{ path('citizen_dashboard') }}"><i class="fas fa-home mr-1"></i>Accueil</a></li>
+        <li class="breadcrumb-item active">Mes Taxes</li>
+    </ol>
+</nav>
+
+<div class="alert alert-info shadow-sm">
+    <i class="fas fa-info-circle mr-2"></i>
+    Le paiement en ligne est <strong>sécurisé</strong>. Vous recevrez une référence de confirmation après chaque paiement.
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="fas fa-list mr-2"></i>Taxes municipales actives
+            <span class="badge badge-primary ml-1">{{ taxes|length }}</span>
+        </h6>
+    </div>
+    <div class="card-body">
+        {% if taxes is empty %}
+            <div class="alert alert-success mb-0">
+                <i class="fas fa-check-circle mr-2"></i>Aucune taxe active pour le moment.
+            </div>
+        {% else %}
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Nom de la Taxe</th>
+                            <th class="text-right" style="width:160px">Montant (DT)</th>
+                            <th>Description</th>
+                            <th style="width:180px" class="text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for taxe in taxes %}
+                            <tr>
+                                <td class="font-weight-bold">
+                                    <i class="fas fa-tag mr-2 text-muted"></i>{{ taxe.nomTaxe }}
+                                </td>
+                                <td class="text-right font-weight-bold text-dark">
+                                    {{ taxe.montant|number_format(3, ',', ' ') }} DT
+                                </td>
+                                <td class="text-muted small">
+                                    {{ taxe.description ?? '—' }}
+                                </td>
+                                <td class="text-center">
+                                    <form action="{{ path('citizen_payer_taxe', {id: taxe.id}) }}"
+                                          method="POST"
+                                          onsubmit="return confirm('Confirmer le paiement de la taxe « {{ taxe.nomTaxe }} » pour un montant de {{ taxe.montant }} DT ?')">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('payer_taxe_' ~ taxe.id) }}">
+                                        <button type="submit" class="btn btn-success btn-sm">
+                                            <i class="fas fa-credit-card mr-1"></i>Payer en ligne
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

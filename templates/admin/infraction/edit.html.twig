@@ -1,0 +1,132 @@
+{% extends 'base.html.twig' %}
+{% block title %}Modifier l'Infraction #{{ infraction.id }}{% endblock %}
+
+{% block body %}
+
+{% for msg in app.flashes('success') %}<div class="alert alert-success alert-dismissible fade show"><i class="fas fa-check-circle mr-2"></i>{{ msg }}<button type="button" class="close" data-dismiss="alert">&times;</button></div>{% endfor %}
+{% for msg in app.flashes('danger') %}<div class="alert alert-danger alert-dismissible fade show"><i class="fas fa-exclamation-circle mr-2"></i>{{ msg }}<button type="button" class="close" data-dismiss="alert">&times;</button></div>{% endfor %}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-3">
+    <h1 class="h3 mb-0 text-gray-800">
+        <i class="fas fa-edit mr-2 text-warning"></i>Modifier l'Infraction <span class="text-primary">#{{ infraction.id }}</span>
+    </h1>
+    <a href="{{ path('admin_infraction_index') }}" class="btn btn-secondary btn-sm">
+        <i class="fas fa-arrow-left mr-1"></i>Retour à la liste
+    </a>
+</div>
+
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb bg-white shadow-sm small">
+        <li class="breadcrumb-item"><a href="{{ path('admin_dashboard') }}"><i class="fas fa-home mr-1"></i>Accueil</a></li>
+        <li class="breadcrumb-item"><a href="{{ path('admin_infraction_index') }}">Infractions</a></li>
+        <li class="breadcrumb-item"><a href="{{ path('admin_infraction_show', {id: infraction.id}) }}">#{{ infraction.id }}</a></li>
+        <li class="breadcrumb-item active">Modifier</li>
+    </ol>
+</nav>
+
+<div class="row justify-content-center">
+    <div class="col-xl-9 col-lg-11">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-warning">
+                    <i class="fas fa-edit mr-2"></i>Modifier l'infraction #{{ infraction.id }}
+                    <span class="ml-2 small text-muted">({{ infraction.plaqueImmat }})</span>
+                </h6>
+            </div>
+            <div class="card-body">
+                {{ form_start(form, {attr: {novalidate: 'novalidate'}}) }}
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form_label(form.type_infraction, null, {label_attr: {class: 'font-weight-bold'}}) }}
+                                {{ form_widget(form.type_infraction, {attr: {class: 'form-control custom-select'}}) }}
+                                {{ form_errors(form.type_infraction) }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form_label(form.montant_amende, null, {label_attr: {class: 'font-weight-bold'}}) }}
+                                <div class="input-group">
+                                    {{ form_widget(form.montant_amende, {attr: {class: 'form-control'}}) }}
+                                    <div class="input-group-append"><span class="input-group-text">DT</span></div>
+                                </div>
+                                {{ form_errors(form.montant_amende) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                {{ form_label(form.lieu, null, {label_attr: {class: 'font-weight-bold'}}) }}
+                                {{ form_widget(form.lieu, {attr: {class: 'form-control'}}) }}
+                                {{ form_errors(form.lieu) }}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                {{ form_label(form.plaque_immat, null, {label_attr: {class: 'font-weight-bold'}}) }}
+                                {{ form_widget(form.plaque_immat, {attr: {class: 'form-control text-uppercase'}}) }}
+                                {{ form_errors(form.plaque_immat) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form_label(form.date_infraction, null, {label_attr: {class: 'font-weight-bold'}}) }}
+                                {{ form_widget(form.date_infraction, {attr: {class: 'form-control'}}) }}
+                                {{ form_errors(form.date_infraction) }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form_label(form.statut, null, {label_attr: {class: 'font-weight-bold'}}) }}
+                                {{ form_widget(form.statut, {attr: {class: 'form-control custom-select'}}) }}
+                                {{ form_errors(form.statut) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form_label(form.user, null, {label_attr: {class: 'font-weight-bold'}}) }}
+                                {{ form_widget(form.user, {attr: {class: 'form-control custom-select'}}) }}
+                                {{ form_errors(form.user) }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form_label(form.agent, null, {label_attr: {class: 'font-weight-bold'}}) }}
+                                {{ form_widget(form.agent, {attr: {class: 'form-control custom-select'}}) }}
+                                {{ form_errors(form.agent) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        {{ form_label(form.notes, null, {label_attr: {class: 'font-weight-bold'}}) }}
+                        {{ form_widget(form.notes, {attr: {class: 'form-control', rows: 3}}) }}
+                        {{ form_errors(form.notes) }}
+                    </div>
+
+                    <hr class="my-4">
+                    <div class="d-flex justify-content-end">
+                        <a href="{{ path('admin_infraction_show', {id: infraction.id}) }}" class="btn btn-secondary mr-2">
+                            <i class="fas fa-times mr-1"></i>Annuler
+                        </a>
+                        <button type="submit" class="btn btn-warning">
+                            <i class="fas fa-save mr-1"></i>Enregistrer les modifications
+                        </button>
+                    </div>
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

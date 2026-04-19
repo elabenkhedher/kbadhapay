@@ -1,0 +1,119 @@
+{% extends 'base.html.twig' %}
+{% block title %}Mes Infractions — Agent Police{% endblock %}
+
+{% block body %}
+
+{% for msg in app.flashes('success') %}<div class="alert alert-success alert-dismissible fade show shadow-sm"><i class="fas fa-check-circle mr-2"></i>{{ msg }}<button type="button" class="close" data-dismiss="alert">&times;</button></div>{% endfor %}
+{% for msg in app.flashes('danger') %}<div class="alert alert-danger alert-dismissible fade show shadow-sm"><i class="fas fa-exclamation-circle mr-2"></i>{{ msg }}<button type="button" class="close" data-dismiss="alert">&times;</button></div>{% endfor %}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-3">
+    <h1 class="h3 mb-0 text-gray-800">
+        <i class="fas fa-list mr-2 text-primary"></i>Mes Infractions Enregistrées
+    </h1>
+    <a href="{{ path('police_recherche_citoyen') }}" class="btn btn-danger btn-sm shadow-sm">
+        <i class="fas fa-plus mr-1"></i>Nouvelle Infraction
+    </a>
+</div>
+
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb bg-white shadow-sm small">
+        <li class="breadcrumb-item"><a href="{{ path('police_dashboard') }}"><i class="fas fa-home mr-1"></i>Accueil</a></li>
+        <li class="breadcrumb-item active">Mes Infractions</li>
+    </ol>
+</nav>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="fas fa-table mr-2"></i>Toutes mes infractions enregistrées
+            <span class="badge badge-primary ml-1">{{ infractions|length }}</span>
+        </h6>
+    </div>
+    <div class="card-body">
+        {% if infractions is empty %}
+            <div class="alert alert-info mb-0">
+                <i class="fas fa-info-circle mr-2"></i>
+                Vous n'avez pas encore enregistré d'infraction.
+                <a href="{{ path('police_recherche_citoyen') }}" class="font-weight-bold ml-2">Commencer →</a>
+            </div>
+        {% else %}
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered table-sm" id="tableInfractions">
+                    <thead class="thead-light">
+                        <tr>
+                            <th style="width:50px">#</th>
+                            <th>Type</th>
+                            <th>CIN Citoyen</th>
+                            <th>Lieu</th>
+                            <th>Plaque</th>
+                            <th class="text-right">Montant</th>
+                            <th>Date</th>
+                            <th class="text-center">Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% set labels = {
+                            'radar':         'Radar',
+                            'feu_rouge':     'Feu rouge',
+                            'stationnement': 'Stationnement',
+                            'telephone':     'Téléphone',
+                            'alcool':        'Alcool',
+                            'ceinture':      'Ceinture'
+                        } %}
+                        {% for i in infractions %}
+                            <tr>
+                                <td class="text-center text-muted">{{ i.id }}</td>
+                                <td class="font-weight-bold">
+                                    {{ labels[i.typeInfraction] ?? i.typeInfraction }}
+                                </td>
+                                <td class="font-monospace">
+                                    {{ i.user ? i.user.cin : '<span class="text-muted">—</span>'|raw }}
+                                </td>
+                                <td class="text-muted small">{{ i.lieu }}</td>
+                                <td>
+                                    <span class="badge badge-dark px-2">{{ i.plaqueImmat }}</span>
+                                </td>
+                                <td class="text-right font-weight-bold">
+                                    {{ i.montantAmende|number_format(3, ',', ' ') }} DT
+                                </td>
+                                <td class="text-muted small">
+                                    {{ i.dateInfraction ? i.dateInfraction|date('d/m/Y H:i') : '—' }}
+                                </td>
+                                <td class="text-center">
+                                    {% if i.statut == 'a_payer' %}
+                                        <span class="badge badge-warning text-dark px-2 py-1">
+                                            <i class="fas fa-clock mr-1"></i>À Payer
+                                        </span>
+                                    {% elseif i.statut == 'paye' %}
+                                        <span class="badge badge-success px-2 py-1">
+                                            <i class="fas fa-check mr-1"></i>Payé
+                                        </span>
+                                    {% elseif i.statut == 'conteste' %}
+                                        <span class="badge badge-danger px-2 py-1">
+                                            <i class="fas fa-gavel mr-1"></i>Contesté
+                                        </span>
+                                    {% else %}
+                                        <span class="badge badge-secondary px-2 py-1">{{ i.statut }}</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot class="bg-light">
+                        <tr>
+                            <td colspan="5" class="font-weight-bold text-right pr-4">Total amendes :</td>
+                            <td class="font-weight-bold text-right text-success">
+                                {% set total = 0 %}
+                                {% for i in infractions %}{% set total = total + i.montantAmende %}{% endfor %}
+                                {{ total|number_format(3, ',', ' ') }} DT
+                            </td>
+                            <td colspan="2"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

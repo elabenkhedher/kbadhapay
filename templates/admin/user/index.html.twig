@@ -1,0 +1,99 @@
+{% extends 'base.html.twig' %}
+{% block title %}Liste des Utilisateurs{% endblock %}
+
+{% block body %}
+
+{% for msg in app.flashes('success') %}<div class="alert alert-success alert-dismissible fade show shadow-sm"><i class="fas fa-check-circle mr-2"></i>{{ msg }}<button type="button" class="close" data-dismiss="alert">&times;</button></div>{% endfor %}
+{% for msg in app.flashes('danger') %}<div class="alert alert-danger alert-dismissible fade show shadow-sm"><i class="fas fa-exclamation-circle mr-2"></i>{{ msg }}<button type="button" class="close" data-dismiss="alert">&times;</button></div>{% endfor %}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-3">
+    <h1 class="h3 mb-0 text-gray-800">
+        <i class="fas fa-users mr-2 text-primary"></i>Liste des Utilisateurs
+    </h1>
+    <a href="{{ path('admin_user_new') }}" class="btn btn-primary btn-sm shadow-sm">
+        <i class="fas fa-plus fa-sm mr-1"></i>Ajouter un Utilisateur
+    </a>
+</div>
+
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb bg-white shadow-sm small">
+        <li class="breadcrumb-item"><a href="{{ path('admin_dashboard') }}"><i class="fas fa-home mr-1"></i>Accueil</a></li>
+        <li class="breadcrumb-item active">Utilisateurs</li>
+    </ol>
+</nav>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="fas fa-table mr-2"></i>Tous les utilisateurs
+            <span class="badge badge-primary ml-1">{{ users|length }}</span>
+        </h6>
+    </div>
+    <div class="card-body">
+        {% if users is empty %}
+            <div class="alert alert-info mb-0">
+                <i class="fas fa-info-circle mr-2"></i>Aucun utilisateur enregistré.
+            </div>
+        {% else %}
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered" width="100%">
+                    <thead class="thead-light">
+                        <tr>
+                            <th style="width:60px">#</th>
+                            <th>CIN</th>
+                            <th>Nom</th>
+                            <th class="text-center">Rôle principal</th>
+                            <th style="width:145px" class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                            {# Déterminer le rôle principal (priorité : ADMIN > KBADHA > POLICE > CITOYEN) #}
+                            {% set role = 'ROLE_USER' %}
+                            {% if 'ROLE_ADMIN' in user.roles %}{% set role = 'ROLE_ADMIN' %}
+                            {% elseif 'ROLE_KBADHA' in user.roles %}{% set role = 'ROLE_KBADHA' %}
+                            {% elseif 'ROLE_POLICE' in user.roles %}{% set role = 'ROLE_POLICE' %}
+                            {% elseif 'ROLE_CITOYEN' in user.roles %}{% set role = 'ROLE_CITOYEN' %}
+                            {% endif %}
+                            <tr>
+                                <td class="text-center text-muted">{{ user.id }}</td>
+                                <td class="font-weight-bold font-monospace">{{ user.cin }}</td>
+                                <td>{{ user.userIdentifier }}</td>
+                                <td class="text-center">
+                                    {% if role == 'ROLE_ADMIN' %}
+                                        <span class="badge badge-danger px-3 py-2"><i class="fas fa-shield-alt mr-1"></i>Admin</span>
+                                    {% elseif role == 'ROLE_KBADHA' %}
+                                        <span class="badge badge-primary px-3 py-2"><i class="fas fa-cash-register mr-1"></i>Agent Kbadha</span>
+                                    {% elseif role == 'ROLE_POLICE' %}
+                                        <span class="badge badge-warning px-3 py-2 text-dark"><i class="fas fa-user-shield mr-1"></i>Agent Police</span>
+                                    {% elseif role == 'ROLE_CITOYEN' %}
+                                        <span class="badge badge-success px-3 py-2"><i class="fas fa-user mr-1"></i>Citoyen</span>
+                                    {% else %}
+                                        <span class="badge badge-secondary px-3 py-2">Utilisateur</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    <a href="{{ path('admin_user_show', {id: user.id}) }}"
+                                       class="btn btn-info btn-sm" title="Consulter"><i class="fas fa-eye"></i></a>
+                                    <a href="{{ path('admin_user_edit', {id: user.id}) }}"
+                                       class="btn btn-warning btn-sm" title="Modifier"><i class="fas fa-edit"></i></a>
+                                    <form action="{{ path('admin_user_delete', {id: user.id}) }}"
+                                          method="POST" class="d-inline"
+                                          onsubmit="return confirm('Confirmer la suppression ?')">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
+                                        <button class="btn btn-danger btn-sm" title="Supprimer"
+                                            {% if user.id == app.user.id %}disabled title="Vous ne pouvez pas vous supprimer"{% endif %}>
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

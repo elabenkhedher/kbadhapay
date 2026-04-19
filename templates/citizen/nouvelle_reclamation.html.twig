@@ -1,0 +1,69 @@
+{% extends 'base.html.twig' %}
+{% block title %}Nouvelle Réclamation — kbadhapay{% endblock %}
+
+{% block body %}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-3">
+    <h1 class="h3 mb-0 text-gray-800">
+        <i class="fas fa-plus-circle mr-2 text-primary"></i>Déposer une Réclamation
+    </h1>
+    <a href="{{ path('citizen_reclamations') }}" class="btn btn-secondary btn-sm">
+        <i class="fas fa-arrow-left mr-1"></i>Mes réclamations
+    </a>
+</div>
+
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb bg-white shadow-sm small">
+        <li class="breadcrumb-item"><a href="{{ path('citizen_dashboard') }}"><i class="fas fa-home mr-1"></i>Accueil</a></li>
+        <li class="breadcrumb-item"><a href="{{ path('citizen_reclamations') }}">Mes Réclamations</a></li>
+        <li class="breadcrumb-item active">Nouvelle</li>
+    </ol>
+</nav>
+
+<div class="alert alert-info shadow-sm">
+    <i class="fas fa-info-circle mr-2"></i>
+    Votre réclamation sera traitée dans un délai de <strong>5 jours ouvrables</strong>.
+    Un agent vous contactera pour tout complément d'information.
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-xl-8 col-lg-10">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-edit mr-2"></i>Formulaire de réclamation
+                </h6>
+            </div>
+            <div class="card-body">
+                {{ form_start(form, {attr: {novalidate: 'novalidate'}}) }}
+
+                    <div class="form-group">
+                        {{ form_label(form.sujet, null, {label_attr: {class: 'font-weight-bold'}}) }}
+                        {{ form_widget(form.sujet, {attr: {class: 'form-control'}}) }}
+                        {{ form_errors(form.sujet) }}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form_label(form.description, null, {label_attr: {class: 'font-weight-bold'}}) }}
+                        {{ form_widget(form.description, {attr: {class: 'form-control', rows: 6}}) }}
+                        <small class="text-muted">Décrivez votre problème avec le maximum de détails.</small>
+                        {{ form_errors(form.description) }}
+                    </div>
+
+                    <hr class="my-4">
+                    <div class="d-flex justify-content-end">
+                        <a href="{{ path('citizen_reclamations') }}" class="btn btn-secondary mr-2">
+                            <i class="fas fa-times mr-1"></i>Annuler
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane mr-1"></i>Soumettre ma réclamation
+                        </button>
+                    </div>
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

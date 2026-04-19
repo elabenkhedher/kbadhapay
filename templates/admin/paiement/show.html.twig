@@ -1,0 +1,115 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détails du Paiement #{{ paiement.id }} — kbadhapay{% endblock %}
+
+{% block body %}
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">
+        <i class="fas fa-receipt mr-2 text-primary"></i>Détails du Paiement #{{ '%05d'|format(paiement.id) }}
+    </h1>
+    <a href="{{ path('admin_paiement_index') }}" class="btn btn-sm btn-secondary shadow-sm">
+        <i class="fas fa-arrow-left fa-sm text-white-50 mr-1"></i>Retour à la liste
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Informations Générales</h6>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless">
+                    <tr>
+                        <th style="width: 30%">Référence :</th>
+                        <td class="font-weight-bold text-primary">{{ paiement.reference ?? '—' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Sujet :</th>
+                        <td>{{ paiement.sujet }}</td>
+                    </tr>
+                    <tr>
+                        <th>Description :</th>
+                        <td>{{ paiement.description|nl2br }}</td>
+                    </tr>
+                    <tr>
+                        <th>Montant :</th>
+                        <td class="h4 font-weight-bold text-gray-800">
+                            {{ paiement.montant|number_format(3, ',', ' ') }} DT
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Mode de paiement :</th>
+                        <td>
+                            <span class="badge badge-info px-3 py-2" style="font-size: 0.9rem;">
+                                {{ paiement.modePaiement|capitalize }}
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Statut :</th>
+                        <td>
+                            {% if paiement.statut == 'paye' or paiement.statut == 'payé' %}
+                                <span class="badge badge-success px-3 py-2">PAYÉ</span>
+                            {% else %}
+                                <span class="badge badge-warning px-3 py-2 text-dark">{{ paiement.statut|upper }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        {# Bloc Citoyen #}
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-success">Citoyen</h6>
+            </div>
+            <div class="card-body">
+                {% if paiement.user %}
+                    <p class="mb-1 small text-muted">Numéro CIN :</p>
+                    <p class="font-weight-bold h5 mb-3">{{ paiement.user.cin }}</p>
+                    <hr>
+                    <a href="{{ path('admin_user_show', {'id': paiement.user.id}) }}" class="btn btn-sm btn-outline-success btn-block">
+                        Voir le profil citoyen
+                    </a>
+                {% else %}
+                    <p class="text-muted italic">Aucun citoyen rattaché.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        {# Bloc Dates #}
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-info">Chronologie</h6>
+            </div>
+            <div class="card-body">
+                <p class="mb-1 small text-muted">Date de soumission :</p>
+                <p class="mb-3 font-weight-bold">{{ paiement.dateSoumission ? paiement.dateSoumission|date('d/m/Y H:i') : '—' }}</p>
+                
+                <p class="mb-1 small text-muted">Date de paiement effectif :</p>
+                <p class="font-weight-bold">{{ paiement.datePaiement ? paiement.datePaiement|date('d/m/Y H:i') : '—' }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Bouton Danger #}
+<div class="card shadow mb-4 border-left-danger">
+    <div class="card-body d-flex align-items-center justify-content-between">
+        <div>
+            <h6 class="m-0 font-weight-bold text-danger">Zone de danger</h6>
+            <p class="mb-0 small text-muted">La suppression d'un paiement est irréversible.</p>
+        </div>
+        <form method="post" action="{{ path('admin_paiement_delete', {'id': paiement.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce paiement ?');">
+            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ paiement.id) }}">
+            <button class="btn btn-danger btn-sm">
+                <i class="fas fa-trash mr-1"></i>Supprimer
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

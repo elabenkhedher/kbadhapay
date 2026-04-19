@@ -1,0 +1,230 @@
+{% extends 'base.html.twig' %}
+{% block title %}Mon Tableau de Bord — kbadhapay{% endblock %}
+
+{% block body %}
+
+{# ── En-tête ─────────────────────────────────────────────────────── #}
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">
+        <i class="fas fa-home mr-2 text-primary"></i>
+        Tableau de Bord Citoyen
+    </h1>
+    <ol class="breadcrumb mb-0 bg-transparent">
+        <li class="breadcrumb-item"><a href="{{ path('citizen_dashboard') }}">Accueil</a></li>
+        <li class="breadcrumb-item active">Dashboard</li>
+    </ol>
+</div>
+<div class="mb-4">
+    <p class="text-muted mb-0 small">Bienvenue sur votre espace citoyen kbadhapay, <span class="font-weight-bold text-primary">{{ app.user.nom is defined ? app.user.nom : app.user.userIdentifier }}</span>.</p>
+</div>
+
+{# Vérification des infractions en retard #}
+{% set hasLateInfractions = false %}
+{% for i in infractions %}
+    {% if i.statut == 'a_payer' and i.dateEcheance %}
+        {% set diffDays = (date().timestamp - i.dateEcheance.timestamp) / 86400 %}
+        {% if diffDays > 3 %}
+            {% set hasLateInfractions = true %}
+        {% endif %}
+    {% endif %}
+{% endfor %}
+
+{% if hasLateInfractions %}
+<div class="alert alert-danger shadow-sm mb-4">
+    <i class="fas fa-exclamation-triangle mr-2"></i>
+    <strong>Action requise !</strong> Vous avez une ou plusieurs amendes dont la date d'échéance est dépassée de plus de 3 jours. Des pénalités de retard sont appliquées. 
+    <a href="{{ path('citizen_infractions') }}" class="alert-link text-underline">Régler maintenant</a>
+</div>
+{% endif %}
+
+{# ── 4 Cartes KPI ─────────────────────────────────────────────────── #}
+<div class="row mb-4">
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Taxes dues</div>
+                        <div class="mb-0 text-gray-800">
+                            <span class="h2 font-weight-bold">{{ nbTaxesDues }}</span>
+                        </div>
+                        <div class="progress progress-sm mt-2">
+                            <div class="progress-bar bg-primary" role="progressbar" style="width: 70%" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                    <div class="col-auto"><i class="fas fa-file-invoice-dollar fa-2x text-gray-300"></i></div>
+                </div>
+            </div>
+            <div class="card-footer bg-transparent border-0 py-1 text-center">
+                <a href="{{ path('citizen_taxes') }}" class="text-primary small font-weight-bold">Voir mes taxes →</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Infractions à payer</div>
+                        <div class="mb-0 text-gray-800">
+                            <span class="h2 font-weight-bold">{{ nbInfractions }}</span>
+                        </div>
+                        <div class="progress progress-sm mt-2">
+                            <div class="progress-bar bg-warning" role="progressbar" style="width: 40%" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                    <div class="col-auto"><i class="fas fa-gavel fa-2x text-gray-300"></i></div>
+                </div>
+            </div>
+            <div class="card-footer bg-transparent border-0 py-1 text-center">
+                <a href="{{ path('citizen_infractions') }}" class="text-warning small font-weight-bold">Voir mes infractions →</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Total payé ce mois</div>
+                        <div class="mb-0 text-gray-800">
+                            <span class="h2 font-weight-bold">{{ totalPaye }}</span> <small>DT</small>
+                        </div>
+                        <div class="progress progress-sm mt-2">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: 90%" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                    <div class="col-auto"><i class="fas fa-check-circle fa-2x text-gray-300"></i></div>
+                </div>
+            </div>
+            <div class="card-footer bg-transparent border-0 py-1 text-center">
+                <a href="{{ path('citizen_paiements') }}" class="text-success small font-weight-bold">Voir mes paiements →</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Réclamations en cours</div>
+                        <div class="mb-0 text-gray-800">
+                            <span class="h2 font-weight-bold">{{ nbReclamations }}</span>
+                        </div>
+                        <div class="progress progress-sm mt-2">
+                            <div class="progress-bar bg-info" role="progressbar" style="width: 20%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                    <div class="col-auto"><i class="fas fa-comment-dots fa-2x text-gray-300"></i></div>
+                </div>
+            </div>
+            <div class="card-footer bg-transparent border-0 py-1 text-center">
+                <a href="{{ path('citizen_reclamations') }}" class="text-info small font-weight-bold">Voir mes réclamations →</a>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{# ── 2 tableaux côte à côte ───────────────────────────────────────── #}
+<div class="row">
+
+    {# Tableau des prochaines taxes #}
+    <div class="col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-file-invoice-dollar mr-2"></i>Prochaines Taxes
+                </h6>
+                <a href="{{ path('citizen_taxes') }}" class="btn btn-sm btn-outline-primary">Voir tout</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover table-sm mb-0">
+                        <thead class="thead-dark">
+                            <tr><th>Taxe</th><th class="text-right">Montant</th><th class="text-center">Action</th></tr>
+                        </thead>
+                        <tbody>
+                            {% if taxesDues is empty %}
+                                <tr><td colspan="3" class="text-center text-muted py-3">Aucune taxe due.</td></tr>
+                            {% else %}
+                                {% for taxe in taxesDues %}
+                                    <tr>
+                                        <td class="font-weight-bold">{{ taxe.nomTaxe }}</td>
+                                        <td class="text-right">{{ taxe.montant|number_format(3, ',', ' ') }} DT</td>
+                                        <td class="text-center">
+                                            <form action="{{ path('citizen_payer_taxe', {id: taxe.id}) }}" method="POST"
+                                                  onsubmit="return confirm('Confirmer le paiement de la taxe « {{ taxe.nomTaxe }} » ?')">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('payer_taxe_' ~ taxe.id) }}">
+                                                <button class="btn btn-success btn-sm">
+                                                    <i class="fas fa-credit-card mr-1"></i>Payer
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Tableau des infractions à payer #}
+    <div class="col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-warning">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>Amendes à Régler
+                </h6>
+                <a href="{{ path('citizen_infractions') }}" class="btn btn-sm btn-outline-warning">Voir tout</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover table-sm mb-0">
+                        <thead class="thead-dark">
+                            <tr><th>Type</th><th>Lieu</th><th class="text-right">Montant</th><th class="text-center">Action</th></tr>
+                        </thead>
+                        <tbody>
+                            {% if infractions is empty %}
+                                <tr><td colspan="4" class="text-center text-muted py-3">
+                                    <i class="fas fa-check-circle text-success mr-1"></i>Aucune amende en attente.
+                                </td></tr>
+                            {% else %}
+                                {% for i in infractions %}
+                                    <tr>
+                                        <td class="font-weight-bold small">{{ i.typeInfraction|replace({'_': ' '})|title }}</td>
+                                        <td class="text-muted small">{{ i.lieu|slice(0,20) }}…</td>
+                                        <td class="text-right font-weight-bold">
+                                            {{ i.montantTotal|number_format(3, ',', ' ') }} DT
+                                            {% if i.penalite > 0 %}
+                                                <br><small class="text-danger">(inclut {{ i.penalite|number_format(3, ',', ' ') }} DT pénalité)</small>
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-center">
+                                            <form action="{{ path('citizen_payer_infraction', {id: i.id}) }}" method="POST"
+                                                  onsubmit="return confirm('Confirmer le paiement de l\'amende ?')">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('payer_infraction_' ~ i.id) }}">
+                                                <button class="btn btn-warning btn-sm text-dark">
+                                                    <i class="fas fa-gavel mr-1"></i>Régler
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

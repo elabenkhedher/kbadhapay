@@ -1,0 +1,290 @@
+{% extends 'base.html.twig' %}
+{% block title %}Reçu {{ paiement.reference }}{% endblock %}
+
+{% block stylesheets %}
+<style>
+/* ══════════════════════════════════════════════════════════════
+   REÇU OFFICIEL — styles d'écran + impression
+══════════════════════════════════════════════════════════════ */
+
+/* Bouton masqué à l'impression */
+@media print {
+    .no-print { display: none !important; }
+    body { background: #fff !important; }
+    .card { box-shadow: none !important; border: 1px solid #aaa !important; }
+    .sidebar, #accordionSidebar, nav.navbar, footer { display: none !important; }
+    #wrapper, #content-wrapper, #content { display: block !important; }
+    .container-fluid { padding: 0 !important; }
+    .recu-wrapper { max-width: 100% !important; }
+}
+
+/* ── Cadre du reçu ─── */
+.recu-wrapper {
+    max-width: 720px;
+    margin: 0 auto;
+}
+
+.recu-card {
+    border: 2px solid #1a237e;
+    border-radius: 8px;
+    background: #fff;
+}
+
+/* ── En-tête officiel ── */
+.recu-header {
+    background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
+    color: #fff;
+    padding: 1.5rem 2rem;
+    border-radius: 6px 6px 0 0;
+    text-align: center;
+}
+
+.recu-header .logo-flags {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.recu-title {
+    font-size: 1.1rem;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin: 0.75rem 0 0;
+    border: 2px solid rgba(255,255,255,.4);
+    display: inline-block;
+    padding: 0.3rem 1.5rem;
+    border-radius: 4px;
+}
+
+/* ── Corps ── */
+.recu-body {
+    padding: 2rem;
+}
+
+.recu-row {
+    display: flex;
+    border-bottom: 1px dashed #dee2e6;
+    padding: 0.55rem 0;
+    align-items: baseline;
+}
+
+.recu-row:last-child { border-bottom: none; }
+
+.recu-label {
+    flex: 0 0 180px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #5a5c69;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.recu-value {
+    flex: 1;
+    font-size: 0.95rem;
+    color: #2d3748;
+}
+
+.recu-montant {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #1a237e;
+}
+
+/* ── Pied de reçu ── */
+.recu-footer {
+    border-top: 2px solid #1a237e;
+    padding: 1.25rem 2rem;
+    background: #f8f9fc;
+    border-radius: 0 0 6px 6px;
+}
+
+.cachet-zone {
+    border: 2px dashed #aaa;
+    border-radius: 6px;
+    padding: 1.5rem;
+    min-height: 80px;
+    text-align: center;
+    color: #aaa;
+    font-size: 0.8rem;
+}
+</style>
+{% endblock %}
+
+{% block body %}
+
+<div class="recu-wrapper">
+
+    {# ── Boutons d'action (masqués à l'impression) ───────────────── #}
+    <div class="no-print d-sm-flex align-items-center justify-content-between mb-3">
+        <div>
+            <a href="{{ path('kbadha_dashboard') }}" class="btn btn-outline-secondary btn-sm mr-2">
+                <i class="fas fa-arrow-left mr-1"></i>Tableau de bord
+            </a>
+            <a href="{{ path('kbadha_citoyen_recherche') }}" class="btn btn-outline-primary btn-sm">
+                <i class="fas fa-search mr-1"></i>Nouveau citoyen
+            </a>
+        </div>
+        <button onclick="window.print()" class="btn btn-primary">
+            <i class="fas fa-print mr-2"></i>Imprimer le Reçu
+        </button>
+    </div>
+
+    {# ══ REÇU OFFICIEL ══ #}
+    <div class="recu-card shadow">
+
+        {# ── En-tête ─────────────────────────────────────────────── #}
+        <div class="recu-header">
+            <div class="logo-flags">
+                <span style="font-size:1.6rem;">🇹🇳</span>
+                <div>
+                    <div style="font-size:0.72rem;letter-spacing:1px;opacity:.85;">République Tunisienne</div>
+                    <div style="font-size:0.72rem;letter-spacing:1px;opacity:.85;">Ministère de l'Intérieur</div>
+                </div>
+            </div>
+            <div style="font-size:0.95rem;font-weight:700;letter-spacing:0.5px;opacity:.9;">
+                Municipalité de Tunis — <span style="color:#90caf9;">kbadhapay</span>
+            </div>
+            <div style="border-top:1px solid rgba(255,255,255,.3);margin:0.75rem auto;width:80%;"></div>
+            <div class="recu-title">
+                <i class="fas fa-stamp mr-2"></i>Reçu de Paiement Officiel
+            </div>
+        </div>
+
+        {# ── Corps du reçu ────────────────────────────────────────── #}
+        <div class="recu-body">
+
+            <div class="recu-row">
+                <div class="recu-label"><i class="fas fa-hashtag mr-1 text-primary"></i>Référence</div>
+                <div class="recu-value">
+                    <strong class="text-primary">{{ paiement.reference }}</strong>
+                </div>
+            </div>
+
+            <div class="recu-row">
+                <div class="recu-label"><i class="fas fa-calendar-alt mr-1 text-primary"></i>Date</div>
+                <div class="recu-value">
+                    {{ paiement.datePaiement ? paiement.datePaiement|date('d/m/Y à H:i') : '—' }}
+                </div>
+            </div>
+
+            <div class="recu-row">
+                <div class="recu-label"><i class="fas fa-user mr-1 text-primary"></i>Citoyen</div>
+                <div class="recu-value">
+                    {% if paiement.user %}
+                        <strong>{{ paiement.user.cin }}</strong>
+                        {# Affiche le nom si disponible via méthode dédiée #}
+                        {% if paiement.user.userIdentifier %}
+                            — CIN : {{ paiement.user.userIdentifier }}
+                        {% endif %}
+                    {% else %}
+                        —
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="recu-row">
+                <div class="recu-label"><i class="fas fa-tag mr-1 text-primary"></i>Objet</div>
+                <div class="recu-value">
+                    {% if paiement.taxe %}
+                        <span class="badge badge-primary mr-1">Taxe</span>
+                        {{ paiement.taxe.nomTaxe }}
+                    {% elseif paiement.infraction %}
+                        <span class="badge badge-danger mr-1">Amende</span>
+                        {% set labels = {
+                            'radar':'Radar','feu_rouge':'Feu rouge',
+                            'stationnement':'Stationnement','telephone':'Téléphone',
+                            'alcool':'Alcool','ceinture':'Ceinture'
+                        } %}
+                        {{ labels[paiement.infraction.typeInfraction] ?? paiement.infraction.typeInfraction }}
+                        — Plaque : <strong>{{ paiement.infraction.plaqueImmat }}</strong>
+                    {% else %}
+                        {{ paiement.sujet }}
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="recu-row">
+                <div class="recu-label"><i class="fas fa-money-bill-wave mr-1 text-success"></i>Montant réglé</div>
+                <div class="recu-value recu-montant">
+                    {{ paiement.montant }} <span style="font-size:1rem;font-weight:600;">DT</span>
+                </div>
+            </div>
+
+            <div class="recu-row">
+                <div class="recu-label"><i class="fas fa-credit-card mr-1 text-primary"></i>Mode de paiement</div>
+                <div class="recu-value">
+                    {% if paiement.modePaiement == 'especes' %}
+                        💵 <strong>Espèces</strong>
+                    {% elseif paiement.modePaiement == 'cheque' %}
+                        📄 <strong>Chèque bancaire</strong>
+                    {% else %}
+                        {{ paiement.modePaiement }}
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="recu-row">
+                <div class="recu-label"><i class="fas fa-user-tie mr-1 text-primary"></i>Agent Kbadha</div>
+                <div class="recu-value">
+                    {% if paiement.encaissePar %}
+                        {{ paiement.encaissePar.cin }}
+                    {% else %}
+                        —
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+
+        {# ── Pied de reçu ─────────────────────────────────────────── #}
+        <div class="recu-footer">
+
+            <p class="text-center font-weight-bold text-primary mb-3" style="font-size:0.9rem;letter-spacing:0.3px;">
+                <i class="fas fa-check-circle mr-2 text-success"></i>
+                Ce document tient lieu de reçu officiel de paiement
+            </p>
+
+            <div class="row">
+                <div class="col-md-6 mb-3 mb-md-0">
+                    <div class="cachet-zone">
+                        <i class="fas fa-stamp fa-2x mb-1 d-block"></i>
+                        Cachet de la Municipalité
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="cachet-zone">
+                        <i class="fas fa-signature fa-2x mb-1 d-block"></i>
+                        Signature de l'Agent
+                    </div>
+                </div>
+            </div>
+
+            <p class="text-center text-muted small mt-3 mb-0">
+                kbadhapay — Municipalité de Tunis &nbsp;|&nbsp;
+                Généré le {{ "now"|date("d/m/Y à H:i") }}
+            </p>
+
+        </div>
+
+    </div>
+    {# /recu-card #}
+
+    {# ── Bouton Imprimer (bas de page, masqué à l'impression) ──── #}
+    <div class="text-center mt-4 no-print">
+        <button onclick="window.print()" class="btn btn-primary btn-lg px-5">
+            <i class="fas fa-print mr-2"></i>Imprimer le Reçu
+        </button>
+        <a href="{{ path('kbadha_citoyen', {id: paiement.user ? paiement.user.id : 0}) }}"
+           class="btn btn-outline-secondary btn-lg ml-2">
+            <i class="fas fa-redo mr-1"></i>Retour au dossier
+        </a>
+    </div>
+
+</div>
+{# /recu-wrapper #}
+
+{% endblock %}

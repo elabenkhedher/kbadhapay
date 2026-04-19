@@ -1,0 +1,88 @@
+{% extends 'base.html.twig' %}
+{% block title %}Identifier un Citoyen — Police{% endblock %}
+
+{% block body %}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-3">
+    <h1 class="h3 mb-0 text-gray-800">
+        <i class="fas fa-search mr-2 text-primary"></i>Identifier un Citoyen
+    </h1>
+    <a href="{{ path('police_dashboard') }}" class="btn btn-secondary btn-sm">
+        <i class="fas fa-arrow-left mr-1"></i>Tableau de bord
+    </a>
+</div>
+
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb bg-white shadow-sm small">
+        <li class="breadcrumb-item"><a href="{{ path('police_dashboard') }}"><i class="fas fa-home mr-1"></i>Accueil</a></li>
+        <li class="breadcrumb-item active">Recherche Citoyen</li>
+    </ol>
+</nav>
+
+{# ── Alerte CIN non trouvé ────────────────────────────────────────── #}
+{% if erreur %}
+    <div class="alert alert-warning alert-dismissible fade show shadow-sm mb-4">
+        <i class="fas fa-user-times mr-2"></i>
+        Aucun citoyen enregistré avec le CIN <strong>"{{ cin }}"</strong>.
+        Vérifiez le numéro et réessayez.
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+{% endif %}
+
+<div class="row justify-content-center">
+    <div class="col-xl-5 col-lg-7 col-md-9">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 bg-primary text-white">
+                <h6 class="m-0 font-weight-bold">
+                    <i class="fas fa-id-card mr-2"></i>Recherche par Numéro CIN
+                </h6>
+            </div>
+            <div class="card-body py-5 px-4">
+
+                <div class="text-center mb-4">
+                    <i class="fas fa-user-shield fa-4x text-gray-300 mb-3"></i>
+                    <p class="text-muted">Saisissez le <strong>numéro CIN</strong> (8 chiffres) du conducteur à verbaliser.</p>
+                </div>
+
+                {{ form_start(form, {attr: {novalidate: 'novalidate'}}) }}
+
+                    <div class="form-group">
+                        {{ form_label(form.cin, null, {label_attr: {class: 'font-weight-bold text-center d-block'}}) }}
+                        {{ form_widget(form.cin, {
+                            attr: {
+                                class: 'form-control form-control-lg text-center font-weight-bold',
+                                maxlength: 8,
+                                pattern: '[0-9]{8}',
+                                placeholder: 'Ex: 12345678',
+                                inputmode: 'numeric',
+                                autofocus: true,
+                                style: 'font-size: 1.5rem; letter-spacing: 4px;'
+                            }
+                        }) }}
+                        {{ form_errors(form.cin) }}
+                        <div class="text-center">
+                            <small class="text-muted">Format : 8 chiffres exactement</small>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg btn-block mt-3">
+                        <i class="fas fa-search mr-2"></i>Rechercher le citoyen
+                    </button>
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+
+        {# Aide contextuelle #}
+        <div class="card border-left-info shadow-sm">
+            <div class="card-body py-2 px-3">
+                <p class="mb-0 small text-muted">
+                    <i class="fas fa-info-circle text-info mr-2"></i>
+                    Si le citoyen n'est pas encore enregistré dans le système, contactez votre superviseur pour créer son compte.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

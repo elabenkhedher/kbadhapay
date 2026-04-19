@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="kbadhapay – Plateforme municipale de paiement de taxes et amendes – Municipalité de Tunis">
+    <meta name="author" content="Municipalité de Tunis">
+
+    <title>{% block title %}kbadhapay{% endblock %} | Municipalité de Tunis</title>
+
+    {# ════ FONTS ════ #}
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,300,400,600,700,800,900&display=swap" rel="stylesheet">
+
+    {# ════ FONT AWESOME ════ #}
+    <link href="{{ asset('sb-admin-2/vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet">
+
+    {# ════ SB ADMIN 2 CSS ════ #}
+    <link href="{{ asset('sb-admin-2/css/sb-admin-2.min.css') }}" rel="stylesheet">
+
+    {# ════ CUSTOM CSS ════ #}
+    <link href="{{ asset('css/kbadhapay-custom.css') }}" rel="stylesheet">
+
+    {% block stylesheets %}{% endblock %}
+</head>
+
+<body id="page-top">
+
+{# ══════════════════════════════════════════════════════════════════════
+   WRAPPER PRINCIPAL
+══════════════════════════════════════════════════════════════════════ #}
+<div id="wrapper">
+
+    {# ════════════════════════════════════════════════════════════════
+       SIDEBAR
+    ════════════════════════════════════════════════════════════════ #}
+    <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+
+        {# ── LOGO / BRAND ─────────────────────────────────────────── #}
+        <a class="sidebar-brand d-flex align-items-center justify-content-center"
+           href="{{ is_granted('ROLE_ADMIN') ? path('admin_dashboard') : (is_granted('ROLE_KBADHA') ? path('kbadha_dashboard') : path('citizen_dashboard')) }}">
+            <div class="sidebar-brand-icon mr-2">
+                <i class="fas fa-landmark fa-lg"></i>
+            </div>
+            <div class="sidebar-brand-text">
+                <div style="font-size:1.15rem;font-weight:800;letter-spacing:-0.3px;">kbadhapay</div>
+                <span class="sidebar-brand-text d-block" style="font-size:0.65rem;opacity:0.7;letter-spacing:2px">MUNICIPALITÉ DE TUNIS</span>
+            </div>
+        </a>
+
+        <hr class="sidebar-divider my-0">
+
+        {% if is_granted('ROLE_ADMIN') %}
+        {# ═══════════════════════════════════════════
+           MENU ADMINISTRATEUR
+        ═══════════════════════════════════════════ #}
+
+        {# ── [1] TABLEAU DE BORD ──────────────────────────────────── #}
+        <li class="nav-item {{ app.request.pathinfo starts with '/admin/dashboard' ? 'active' : '' }}">
+            <a class="nav-link" href="{{ path('admin_dashboard') }}">
+                <i class="fas fa-fw fa-tachometer-alt"></i>
+                <span>Tableau de Bord</span>
+            </a>
+        </li>
+
+        <hr class="sidebar-divider">
+        <div class="sidebar-heading px-3 py-1">Modules</div>
+
+        {# ── [2] GESTION DES TAXES ────────────────────────────────── #}
+        {% set taxeActive = app.request.pathinfo starts with '/admin/taxe' %}
+        <li class="nav-item {{ taxeActive ? 'active' : '' }}">
+            <a class="nav-link {{ taxeActive ? '' : 'collapsed' }}"
+               href="#collapseTaxes" data-toggle="collapse" data-target="#collapseTaxes"
+               aria-expanded="{{ taxeActive ? 'true' : 'false' }}" aria-controls="collapseTaxes">
+                <i class="fas fa-fw fa-file-invoice-dollar"></i>
+                <span>Gestion des Taxes</span>
+            </a>
+            <div id="collapseTaxes" class="collapse {{ taxeActive ? 'show' : '' }}" data-parent="#accordionSidebar">
+                <div class="bg-white py-2 collapse-inner rounded">
+                    <h6 class="collapse-header">Taxes :</h6>
+                    <a class="collapse-item {{ app.request.pathinfo == '/admin/taxe/new' ? 'active' : '' }}" href="{{ path('admin_taxe_new') }}">
+                        <i class="fas fa-plus fa-xs mr-2"></i>Ajouter une Taxe
+                    </a>
+                    <a class="collapse-item {{ app.request.pathinfo starts with '/admin/taxe' and app.request.pathinfo != '/admin/taxe/new' ? 'active' : '' }}" href="{{ path('admin_taxe_index') }}">
+                        <i class="fas fa-list fa-xs mr-2"></i>Liste des Taxes
+                    </a>
+                </div>
+            </div>
+        </li>
+
+        {# ── [3] GESTION DES INFRACTIONS ──────────────────────────── #}
+        {% set infraActive = app.request.pathinfo starts with '/admin/infraction' %}
+        <li class="nav-item {{ infraActive ? 'active' : '' }}">
+            <a class="nav-link {{ infraActive ? '' : 'collapsed' }}"
+               href="#collapseInfractions" data-toggle="collapse" data-target="#collapseInfractions"
+               aria-expanded="{{ infraActive ? 'true' : 'false' }}" aria-controls="collapseInfractions">
+                <i class="fas fa-fw fa-exclamation-triangle"></i>
+                <span>Gestion des Infractions</span>
+            </a>
+            <div id="collapseInfractions" class="collapse {{ infraActive ? 'show' : '' }}" data-parent="#accordionSidebar">
+                <div class="bg-white py-2 collapse-inner rounded">
+                    <h6 class="collapse-header">Infractions :</h6>
+                    <a class="collapse-item {{ app.request.pathinfo == '/admin/infraction/new' ? 'active' : '' }}" href="{{ path('admin_infraction_new') }}">
+                        <i class="fas fa-plus fa-xs mr-2"></i>Enregistrer une Infraction
+                    </a>
+                    <a class="collapse-item {{ app.request.pathinfo starts with '/admin/infraction' and app.request.pathinfo != '/admin/infraction/new' ? 'active' : '' }}" href="{{ path('admin_infraction_index') }}">
+                        <i class="fas fa-list fa-xs mr-2"></i>Liste des Infractions
+                    </a>
+                </div>
+            </div>
+        </li>
+
+        {# ── [4] GESTION DES PAIEMENTS ────────────────────────────── #}
+        {% set paiActive = app.request.pathinfo starts with '/admin/paiement' %}
+        <li class="nav-item {{ paiActive ? 'active' : '' }}">
+            <a class="nav-link {{ paiActive ? '' : 'collapsed' }}"
+               href="#collapsePaiements" data-toggle="collapse" data-target="#collapsePaiements"
+               aria-expanded="{{ paiActive ? 'true' : 'false' }}" aria-controls="collapsePaiements">
+                <i class="fas fa-fw fa-credit-card"></i>
+                <span>Gestion des Paiements</span>
+            </a>
+            <div id="collapsePaiements" class="collapse {{ paiActive ? 'show' : '' }}" data-parent="#accordionSidebar">
+                <div class="bg-white py-2 collapse-inner rounded">
+                    <h6 class="collapse-header">Paiements :</h6>
+                    <a class="collapse-item {{ app.request.pathinfo == '/admin/paiement/' or app.request.pathinfo == '/admin/paiement' ? 'active' : '' }}" href="{{ path('admin_paiement_index') }}">
+                        <i class="fas fa-list fa-xs mr-2"></i>Liste des Paiements
+                    </a>
+                    <a class="collapse-item {{ app.request.pathinfo == '/admin/paiement/en-attente' ? 'active' : '' }}" href="/admin/paiement/en-attente">
+                        <i class="fas fa-clock fa-xs mr-2"></i>Paiements en attente
+                    </a>
+                </div>
+            </div>
+        </li>
+
+        {# ── [5] GESTION DES RÉCLAMATIONS ─────────────────────────── #}
+        {% set reclActive = app.request.pathinfo starts with '/admin/reclamation' %}
+        <li class="nav-item {{ reclActive ? 'active' : '' }}">
+            <a class="nav-link {{ reclActive ? '' : 'collapsed' }}"
+               href="#collapseReclamations" data-toggle="collapse" data-target="#collapseReclamations"
+               aria-expanded="{{ reclActive ? 'true' : 'false' }}" aria-controls="collapseReclamations">
+                <i class="fas fa-fw fa-envelope"></i>
+                <span>Gestion des Réclamations</span>
+            </a>
+            <div id="collapseReclamations" class="collapse {{ reclActive ? 'show' : '' }}" data-parent="#accordionSidebar">
+                <div class="bg-white py-2 collapse-inner rounded">
+                    <h6 class="collapse-header">Réclamations :</h6>
+                    <a class="collapse-item {{ app.request.pathinfo starts with '/admin/reclamation' and app.request.pathinfo != '/admin/reclamation/en-cours' ? 'active' : '' }}" href="{{ path('admin_reclamation_index') }}">
+                        <i class="fas fa-list fa-xs mr-2"></i>Liste des Réclamations
+                    </a>
+                    <a class="collapse-item {{ app.request.pathinfo == '/admin/reclamation/en-cours' ? 'active' : '' }}" href="/admin/reclamation/en-cours">
+                        <i class="fas fa-spinner fa-xs mr-2"></i>Réclamations en cours
+                    </a>
+                </div>
+            </div>
+        </li>
+
+        {# ── [6] GESTION DES UTILISATEURS ─────────────────────────── #}
+        {% set userActive = app.request.pathinfo starts with '/admin/user' %}
+        <li class="nav-item {{ userActive ? 'active' : '' }}">
+            <a class="nav-link {{ userActive ? '' : 'collapsed' }}"
+               href="#collapseUsers" data-toggle="collapse" data-target="#collapseUsers"
+               aria-expanded="{{ userActive ? 'true' : 'false' }}" aria-controls="collapseUsers">
+                <i class="fas fa-fw fa-users"></i>
+                <span>Gestion des Utilisateurs</span>
+            </a>
+            <div id="collapseUsers" class="collapse {{ userActive ? 'show' : '' }}" data-parent="#accordionSidebar">
+                <div class="bg-white py-2 collapse-inner rounded">
+                    <h6 class="collapse-header">Utilisateurs :</h6>
+                    <a class="collapse-item {{ app.request.pathinfo == '/admin/user/new' ? 'active' : '' }}" href="{{ path('admin_user_new') }}">
+                        <i class="fas fa-plus fa-xs mr-2"></i>Ajouter un Utilisateur
+                    </a>
+                    <a class="collapse-item {{ app.request.pathinfo starts with '/admin/user' and app.request.pathinfo != '/admin/user/new' ? 'active' : '' }}" href="{{ path('admin_user_index') }}">
+                        <i class="fas fa-list fa-xs mr-2"></i>Liste des Utilisateurs
+                    </a>
+                </div>
+            </div>
+        </li>
+
+        {# ── [7] REPORTING FINANCIER ───────────────────────────────── #}
+        <hr class="sidebar-divider">
+        <div class="sidebar-heading px-3 py-1">Analyse</div>
+
+        <li class="nav-item {{ app.request.pathinfo starts with '/admin/reporting' ? 'active' : '' }}">
+            <a class="nav-link" href="{{ path('admin_reporting') }}">
+                <i class="fas fa-fw fa-chart-bar"></i>
+                <span>Reporting</span>
+            </a>
+        </li>
+
+        {% elseif is_granted('ROLE_CITOYEN') %}
+        {# ═══════════════════════════════════════════
+           MENU CITOYEN
+        ═══════════════════════════════════════════ #}
+
+        <li class="nav-item {{ app.request.pathinfo starts with '/citizen/dashboard' ? 'active' : '' }}">
+            <a class="nav-link" href="{{ path('citizen_dashboard') }}">
+                <i class="fas fa-fw fa-home"></i><span>Tableau de Bord</span>
+            </a>
+        </li>
+
+        <hr class="sidebar-divider">
+        <div class="sidebar-heading px-3 py-1">Mon Espace</div>
+
+        <li class="nav-item {{ app.request.pathinfo starts with '/citizen/taxes' ? 'active' : '' }}">
+            <a class="nav-link" href="{{ path('citizen_taxes') }}">
+                <i class="fas fa-fw fa-file-invoice-dollar"></i><span>Mes Taxes</span>
+            </a>
+        </li>
+
+        <li class="nav-item {{ app.request.pathinfo starts with '/citizen/infractions' ? 'active' : '' }}">
+            <a class="nav-link" href="{{ path('citizen_infractions') }}">
+                <i class="fas fa-fw fa-exclamation-triangle"></i><span>Mes Infractions</span>
+            </a>
+        </li>
+
+        <li class="nav-item {{ app.request.pathinfo starts with '/citizen/paiements' ? 'active' : '' }}">
+            <a class="nav-link" href="{{ path('citizen_paiements') }}">
+                <i class="fas fa-fw fa-credit-card"></i><span>Mes Paiements</span>
+            </a>
+        </li>
+
+        <li class="nav-item {{ app.request.pathinfo starts with '/citizen/reclamation' ? 'active' : '' }}">
+            <a class="nav-link" href="{{ path('citizen_reclamations') }}">
+                <i class="fas fa-fw fa-envelope"></i><span>Mes Réclamations</span>
+            </a>
+        </li>
+
+        <li class="nav-item {{ app.request.pathinfo starts with '/citizen/preferences' ? 'active' : '' }}">
+            <a class="nav-link" href="{{ path('citizen_preferences') }}">
+                <i class="fas fa-fw fa-bell"></i><span>Mes Préférences</span>
+            </a>
+        </li>
+
+        {% elseif is_granted('ROLE_POLICE') %}
+        {# ═══════════════════════════════════════════
+           MENU AGENT POLICE
+        ═══════════════════════════════════════════ #}
+
+        <li class="nav-item {{ app.request.pathinfo starts with '/police/dashboard' ? 'active' : '' }}">
+            <a class="nav-link" href="{{ path('police_dashboard') }}">
+                <i class="fas fa-fw fa-tachometer-alt"></i><span>Tableau de Bord</span>
+            </a>
+        </li>
+
+        <hr class="sidebar-divider">
+        <div class="sidebar-heading px-3 py-1">Opérations</div>
+
+        <li class="nav-item {{ app.request.pathinfo starts with '/police/citoyen' ? 'active' : '' }}">
+            <a class="nav-link" href="{{ path('police_recherche_citoyen') }}">
+                <i class="fas fa-fw fa-search"></i><span>Rechercher un Citoyen</span>
+            </a>
+        </li>
+
+        <li class="nav-item {{ app.request.pathinfo starts with '/police/infractions' ? 'active' : '' }}">
+            <a class="nav-link" href="{{ path('police_infractions') }}">
+                <i class="fas fa-fw fa-list"></i><span>Mes Infractions</span>
+            </a>
+        </li>
+
+        {% elseif is_granted('ROLE_KBADHA') %}
+        {# ═══════════════════════════════════════════
+           MENU AGENT KBADHA (GUICHET)
+        ═══════════════════════════════════════════ #}
+
+        <li class="nav-item {{ app.request.pathinfo starts with '/kbadha/dashboard' ? 'active' : '' }}">
+            <a class="nav-link" href="{{ path('kbadha_dashboard') }}">
+                <i class="fas fa-fw fa-tachometer-alt"></i><span>Tableau de Bord</span>
+            </a>
+        </li>
+
+        <hr class="sidebar-divider">
+        <div class="sidebar-heading px-3 py-1">Guichet</div>
+
+        <li class="nav-item {{ app.request.pathinfo starts with '/kbadha/citoyen' ? 'active' : '' }}">
+            <a class="nav-link" href="{{ path('kbadha_citoyen_recherche') }}">
+                <i class="fas fa-fw fa-search"></i><span>Rechercher un Citoyen</span>
+            </a>
+        </li>
+
+        {% endif %}
+
+
+        <hr class="sidebar-divider d-none d-md-block">
+
+        {# ── Bouton réduction sidebar ─────────────────────────────── #}
+        <div class="text-center d-none d-md-inline">
+            <button class="rounded-circle border-0" id="sidebarToggle" title="Réduire le menu"></button>
+        </div>
+
+    </ul>
+    {# ── FIN SIDEBAR ── #}
+
+
+
+    {# ════════════════════════════════════════════════════════════════
+       CONTENT WRAPPER
+    ════════════════════════════════════════════════════════════════ #}
+    <div id="content-wrapper" class="d-flex flex-column min-vh-100">
+        <div id="content" class="flex-grow-1">
+
+            {# ══ TOPBAR ════════════════════════════════════════════════ #}
+            <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+
+                {# Toggle sidebar mobile #}
+                <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+                    <i class="fas fa-bars"></i>
+                </button>
+
+                {# Éléments de droite #}
+                <ul class="navbar-nav ml-auto">
+
+                    <div class="topbar-divider d-none d-sm-block"></div>
+
+                    {# ── Profil / Déconnexion ── #}
+                    <li class="nav-item dropdown no-arrow">
+                        <a class="nav-link dropdown-toggle"
+                           href="#"
+                           id="userDropdown"
+                           role="button"
+                           data-toggle="dropdown"
+                           aria-haspopup="true"
+                           aria-expanded="false">
+                            {% if app.user %}
+                                <div class="d-flex align-items-center">
+                                    <div class="mr-3 text-right d-none d-lg-block">
+                                        <div class="small text-gray-500">Connecté en tant que</div>
+                                        <div class="font-weight-bold text-gray-800">
+                                            {{ app.user.nom is defined ? app.user.nom : app.user.userIdentifier }}
+                                        </div>
+                                    </div>
+                                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
+                                         style="width:40px;height:40px;font-size:1.1rem">
+                                        {{ (app.user.nom is defined ? app.user.nom : app.user.userIdentifier)|slice(0,1)|upper }}
+                                    </div>
+                                </div>
+                            {% else %}
+                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">Invité</span>
+                                <i class="fas fa-user-circle fa-2x text-gray-400"></i>
+                            {% endif %}
+                        </a>
+
+                        <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                             aria-labelledby="userDropdown">
+                            <div class="dropdown-item-text small text-muted px-3 py-2">
+                                <i class="fas fa-id-card fa-sm mr-1 text-primary"></i>
+                                CIN :
+                                <strong>{{ app.user ? app.user.userIdentifier : '—' }}</strong>
+                            </div>
+                            <div class="dropdown-item-text small text-muted px-3">
+                                <i class="fas fa-shield-alt fa-sm mr-1 text-warning"></i>
+                                {% if app.user %}
+                                    {{ app.user.roles | join(', ') | replace({'ROLE_': '', '_': ' '}) | title }}
+                                {% endif %}
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item text-danger"
+                               href="{{ path('app_logout') }}">
+                                <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2"></i>Déconnexion
+                            </a>
+                        </div>
+                    </li>
+
+                </ul>
+            </nav>
+            {# ══ FIN TOPBAR ══ #}
+
+            {# ══ CONTENU DE LA PAGE ════════════════════════════════════ #}
+            <div class="container-fluid">
+
+                {# Flash messages Symfony #}
+                {% for msg in app.flashes('success') %}
+                <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+                    <i class="fas fa-check-circle mr-2"></i>{{ msg }}
+                    <button type="button" class="close" data-dismiss="alert">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                {% endfor %}
+                {% for msg in app.flashes('error') %}
+                <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+                    <i class="fas fa-times-circle mr-2"></i>{{ msg }}
+                    <button type="button" class="close" data-dismiss="alert">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                {% endfor %}
+
+                {% block body %}{% endblock %}
+
+            </div>
+            {# ══ FIN CONTENU ══ #}
+
+        </div>
+
+        {# ══ FOOTER ═══════════════════════════════════════════════════ #}
+        <footer class="sticky-footer bg-white">
+            <div class="container my-auto">
+                <div class="copyright text-center my-auto">
+                    <span class="small text-gray-500">
+                        &copy; {{ "now"|date("Y") }}
+                        <strong class="text-primary">kbadhapay</strong> —
+                        Municipalité de Tunis. Tous droits réservés.
+                    </span>
+                </div>
+            </div>
+        </footer>
+        {# ══ FIN FOOTER ══ #}
+
+    </div>
+    {# ── FIN CONTENT WRAPPER ── #}
+
+</div>
+{# ── FIN WRAPPER ── #}
+
+{# ════════════════════════════════════════════════════════════════════
+   SCRIPTS
+════════════════════════════════════════════════════════════════════ #}
+<script src="{{ asset('sb-admin-2/vendor/jquery/jquery.min.js') }}"></script>
+<script src="{{ asset('sb-admin-2/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ asset('sb-admin-2/vendor/jquery-easing/jquery.easing.min.js') }}"></script>
+<script src="{{ asset('sb-admin-2/js/sb-admin-2.min.js') }}"></script>
+
+{% block javascripts %}{% endblock %}
+
+</body>
+</html>

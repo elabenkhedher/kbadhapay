@@ -1,0 +1,170 @@
+{% extends 'base.html.twig' %}
+{% block title %}Espace Agent Police{% endblock %}
+
+{% block body %}
+
+{% for msg in app.flashes('success') %}<div class="alert alert-success alert-dismissible fade show shadow-sm"><i class="fas fa-check-circle mr-2"></i>{{ msg }}<button type="button" class="close" data-dismiss="alert">&times;</button></div>{% endfor %}
+{% for msg in app.flashes('danger') %}<div class="alert alert-danger alert-dismissible fade show shadow-sm"><i class="fas fa-exclamation-circle mr-2"></i>{{ msg }}<button type="button" class="close" data-dismiss="alert">&times;</button></div>{% endfor %}
+
+{# ── En-tête ─────────────────────────────────────────────────────── #}
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">
+        <i class="fas fa-user-shield mr-2 text-primary"></i>
+        Tableau de Bord Police
+    </h1>
+    <ol class="breadcrumb mb-0 bg-transparent">
+        <li class="breadcrumb-item"><a href="{{ path('police_dashboard') }}">Accueil</a></li>
+        <li class="breadcrumb-item active">Dashboard</li>
+    </ol>
+</div>
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <p class="text-muted mb-0 small">
+        <i class="fas fa-calendar-day mr-1"></i>{{ "now"|date("d/m/Y") }} &nbsp;|&nbsp;
+        <i class="fas fa-clock mr-1"></i>{{ "now"|date("H:i") }}
+    </p>
+    <a href="{{ path('police_recherche_citoyen') }}" class="btn btn-danger btn-sm shadow">
+        <i class="fas fa-plus mr-1"></i>Nouvelle Infraction
+    </a>
+</div>
+
+{# ── 3 Cartes KPI ─────────────────────────────────────────────────── #}
+<div class="row mb-4">
+
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Infractions aujourd'hui</div>
+                        <div class="mb-0 text-gray-800">
+                            <span class="h2 font-weight-bold">{{ nbInfractionsAujourdhui }}</span>
+                        </div>
+                        <div class="progress progress-sm mt-2">
+                            <div class="progress-bar bg-primary" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                    <div class="col-auto"><i class="fas fa-clipboard-list fa-2x text-gray-300"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Infractions ce mois</div>
+                        <div class="mb-0 text-gray-800">
+                            <span class="h2 font-weight-bold">{{ nbInfractionsMois }}</span>
+                        </div>
+                        <div class="progress progress-sm mt-2">
+                            <div class="progress-bar bg-info" role="progressbar" style="width: 60%" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                    <div class="col-auto"><i class="fas fa-calendar-check fa-2x text-gray-300"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Total Amendes</div>
+                        <div class="mb-0 text-gray-800">
+                            <span class="h2 font-weight-bold">{{ totalAmende }}</span> <small>DT</small>
+                        </div>
+                        <div class="progress progress-sm mt-2">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: 85%" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                    <div class="col-auto"><i class="fas fa-coins fa-2x text-gray-300"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{# ── Layout 2 colonnes ────────────────────────────────────────────── #}
+<div class="row">
+
+    {# ── Colonne gauche : Action rapide ── #}
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow h-100">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-danger">
+                    <i class="fas fa-plus-circle mr-2"></i>Nouvelle Infraction
+                </h6>
+            </div>
+            <div class="card-body d-flex flex-column align-items-center justify-content-center text-center py-5">
+                <i class="fas fa-search fa-4x text-gray-300 mb-4"></i>
+                <p class="text-muted mb-4">
+                    Recherchez le citoyen par son <strong>numéro CIN</strong> pour enregistrer une infraction à sa charge.
+                </p>
+                <a href="{{ path('police_recherche_citoyen') }}"
+                   class="btn btn-danger btn-lg px-5">
+                    <i class="fas fa-search mr-2"></i>Rechercher un citoyen par CIN
+                </a>
+                <p class="text-muted small mt-3">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    Entrez le CIN du conducteur pour accéder à son dossier.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    {# ── Colonne droite : Dernières infractions de la session ── #}
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow h-100">
+            <div class="card-header py-3 d-flex align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-history mr-2"></i>Infractions de la session
+                </h6>
+                <a href="{{ path('police_infractions') }}" class="btn btn-sm btn-outline-primary">Tout voir</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover table-sm mb-0">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th>Type</th>
+                                <th class="text-center">CIN</th>
+                                <th>Lieu</th>
+                                <th>Plaque</th>
+                                <th>Heure</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if dernieresInfractions is empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted py-4">
+                                        <i class="fas fa-check-circle text-success mr-1"></i>
+                                        Aucune infraction enregistrée.
+                                    </td>
+                                </tr>
+                            {% else %}
+                                {% set labels = {'radar':'Radar','feu_rouge':'Feu rouge','stationnement':'Stationnement','telephone':'Téléphone','alcool':'Alcool','ceinture':'Ceinture'} %}
+                                {% for i in dernieresInfractions %}
+                                    <tr>
+                                        <td class="font-weight-bold small">{{ labels[i.typeInfraction] ?? i.typeInfraction }}</td>
+                                        <td class="text-center small">{{ i.user ? i.user.cin : '—' }}</td>
+                                        <td class="text-muted small">{{ i.lieu|slice(0,18) }}…</td>
+                                        <td><span class="badge badge-dark px-3 py-1">{{ i.plaqueImmat }}</span></td>
+                                        <td class="text-muted small">{{ i.dateInfraction ? i.dateInfraction|date('H:i') : '—' }}</td>
+                                    </tr>
+                                {% endfor %}
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

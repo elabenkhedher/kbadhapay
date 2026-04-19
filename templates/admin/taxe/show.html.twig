@@ -1,0 +1,107 @@
+{% extends 'base.html.twig' %}
+{% block title %}Détail — {{ taxe.nomTaxe }}{% endblock %}
+
+{% block body %}
+
+{% for msg in app.flashes('success') %}<div class="alert alert-success alert-dismissible fade show"><i class="fas fa-check-circle mr-2"></i>{{ msg }}<button type="button" class="close" data-dismiss="alert">&times;</button></div>{% endfor %}
+{% for msg in app.flashes('danger') %}<div class="alert alert-danger alert-dismissible fade show"><i class="fas fa-exclamation-circle mr-2"></i>{{ msg }}<button type="button" class="close" data-dismiss="alert">&times;</button></div>{% endfor %}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-3">
+    <h1 class="h3 mb-0 text-gray-800">
+        <i class="fas fa-search-dollar mr-2 text-primary"></i>Détail — {{ taxe.nomTaxe }}
+    </h1>
+    <div>
+        <a href="{{ path('admin_taxe_edit', {id: taxe.id}) }}" class="btn btn-warning btn-sm mr-2">
+            <i class="fas fa-edit mr-1"></i>Modifier
+        </a>
+        <a href="{{ path('admin_taxe_index') }}" class="btn btn-secondary btn-sm">
+            <i class="fas fa-arrow-left mr-1"></i>Retour à la liste
+        </a>
+    </div>
+</div>
+
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb bg-white shadow-sm small">
+        <li class="breadcrumb-item"><a href="{{ path('admin_dashboard') }}"><i class="fas fa-home mr-1"></i>Accueil</a></li>
+        <li class="breadcrumb-item"><a href="{{ path('admin_taxe_index') }}">Taxes</a></li>
+        <li class="breadcrumb-item active">{{ taxe.nomTaxe }}</li>
+    </ol>
+</nav>
+
+<div class="row justify-content-center">
+    <div class="col-xl-8 col-lg-10">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-info-circle mr-2"></i>Informations de la taxe
+                </h6>
+                <span class="text-muted small">Réf. #{{ taxe.id }}</span>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless mb-0">
+                    <tbody>
+                        <tr>
+                            <th style="width:40%" class="text-gray-600"><i class="fas fa-tag mr-2 text-muted"></i>Nom de la taxe</th>
+                            <td class="font-weight-bold text-primary">{{ taxe.nomTaxe }}</td>
+                        </tr>
+                        <tr class="bg-light">
+                            <th class="text-gray-600"><i class="fas fa-align-left mr-2 text-muted"></i>Description</th>
+                            <td>{{ taxe.description ?? '<span class="text-muted font-italic">Aucune description</span>'|raw }}</td>
+                        </tr>
+                        <tr>
+                            <th class="text-gray-600"><i class="fas fa-money-bill-wave mr-2 text-muted"></i>Montant</th>
+                            <td>
+                                <span class="h5 font-weight-bold text-dark">
+                                    {{ taxe.montant|number_format(3, ',', ' ') }}
+                                </span>
+                                <span class="text-muted ml-1">DT</span>
+                            </td>
+                        </tr>
+                        <tr class="bg-light">
+                            <th class="text-gray-600"><i class="fas fa-toggle-on mr-2 text-muted"></i>Statut</th>
+                            <td>
+                                {% if taxe.isActif %}
+                                    <span class="badge badge-success px-3 py-2"><i class="fas fa-check-circle mr-1"></i>Active</span>
+                                {% else %}
+                                    <span class="badge badge-secondary px-3 py-2"><i class="fas fa-archive mr-1"></i>Archivée</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer bg-white d-flex justify-content-end">
+                <a href="{{ path('admin_taxe_edit', {id: taxe.id}) }}" class="btn btn-warning mr-2">
+                    <i class="fas fa-edit mr-1"></i>Modifier
+                </a>
+                <a href="{{ path('admin_taxe_index') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left mr-1"></i>Retour à la liste
+                </a>
+            </div>
+        </div>
+
+        {# Zone de danger #}
+        <div class="card shadow mb-4 border-left-danger">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-danger">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>Zone de danger
+                </h6>
+            </div>
+            <div class="card-body d-flex align-items-center justify-content-between">
+                <p class="mb-0 text-gray-600">
+                    Suppression <strong>irréversible</strong> de cette taxe.
+                </p>
+                <form action="{{ path('admin_taxe_delete', {id: taxe.id}) }}"
+                      method="POST"
+                      onsubmit="return confirm('Confirmer la suppression ?')">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ taxe.id) }}">
+                    <button class="btn btn-danger btn-sm ml-3">
+                        <i class="fas fa-trash mr-1"></i>Supprimer
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Rapport Financier — kbadhapay</title>
+    <style>
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            font-size: 12px;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #4e73df;
+            padding-bottom: 10px;
+        }
+        .header h1 {
+            color: #4e73df;
+            margin: 0;
+            font-size: 24px;
+        }
+        .header p {
+            margin: 5px 0 0;
+            color: #858796;
+            font-size: 14px;
+        }
+        .section-title {
+            background-color: #f8f9fc;
+            padding: 8px 12px;
+            border-left: 4px solid #4e73df;
+            margin: 20px 0 10px;
+            font-weight: bold;
+            color: #4e73df;
+            text-transform: uppercase;
+            font-size: 11px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th {
+            background-color: #f8f9fc;
+            color: #4e73df;
+            text-align: left;
+            padding: 8px;
+            border-bottom: 1px solid #e3e6f0;
+            font-size: 10px;
+        }
+        td {
+            padding: 8px;
+            border-bottom: 1px solid #e3e6f0;
+            vertical-align: middle;
+        }
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+        .font-weight-bold { font-weight: bold; }
+        .text-success { color: #1cc88a; }
+        .text-primary { color: #4e73df; }
+        .text-info { color: #36b9cc; }
+        .footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 10px;
+            color: #858796;
+            border-top: 1px solid #e3e6f0;
+            padding-top: 10px;
+        }
+        .kpi-container {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .kpi-card {
+            display: inline-block;
+            width: 30%;
+            padding: 10px;
+            border: 1px solid #e3e6f0;
+            border-radius: 5px;
+            margin-right: 2%;
+            background-color: #fff;
+        }
+        .kpi-label {
+            font-size: 9px;
+            font-weight: bold;
+            color: #858796;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+        .kpi-value {
+            font-size: 16px;
+            font-weight: bold;
+            color: #5a5c69;
+        }
+        .total-row {
+            background-color: #f8f9fc;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>kbadhapay</h1>
+        <p>Rapport Financier — Généré le {{ "now"|date("d/m/Y H:i") }}</p>
+    </div>
+
+    <div class="section-title">Synthèse des encaissements par mode</div>
+    <div class="kpi-container">
+        <div class="kpi-card" style="border-left: 4px solid #4e73df;">
+            <div class="kpi-label">Paiements en ligne</div>
+            <div class="kpi-value">{{ totalEnLigne|number_format(3, ',', ' ') }} DT</div>
+        </div>
+        <div class="kpi-card" style="border-left: 4px solid #1cc88a;">
+            <div class="kpi-label">Espèces (Guichet)</div>
+            <div class="kpi-value">{{ totalEspeces|number_format(3, ',', ' ') }} DT</div>
+        </div>
+        <div class="kpi-card" style="border-left: 4px solid #36b9cc; margin-right: 0;">
+            <div class="kpi-label">Chèques (Guichet)</div>
+            <div class="kpi-value">{{ totalCheque|number_format(3, ',', ' ') }} DT</div>
+        </div>
+    </div>
+
+    <div class="section-title">Encaissements par Agent Kbadha</div>
+    <table>
+        <thead>
+            <tr>
+                <th>Agent (CIN)</th>
+                <th class="text-center">Nb paiements</th>
+                <th class="text-right">Total espèces</th>
+                <th class="text-right">Total chèques</th>
+                <th class="text-right">Total général</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if parAgent is empty %}
+                <tr>
+                    <td colspan="5" class="text-center">Aucune donnée disponible.</td>
+                </tr>
+            {% else %}
+                {% set totalGlobalNb      = 0 %}
+                {% set totalGlobalEspeces = 0 %}
+                {% set totalGlobalCheque  = 0 %}
+                {% set totalGlobal        = 0 %}
+                {% for row in parAgent %}
+                    {% set totalGlobalNb      = totalGlobalNb      + row.nb %}
+                    {% set totalGlobalEspeces = totalGlobalEspeces + row.totalEspeces %}
+                    {% set totalGlobalCheque  = totalGlobalCheque  + row.totalCheque %}
+                    {% set totalGlobal        = totalGlobal        + row.totalGeneral %}
+                    <tr>
+                        <td>{{ row.agent ? row.agent.cin : '— inconnu —' }}</td>
+                        <td class="text-center">{{ row.nb }}</td>
+                        <td class="text-right">{{ row.totalEspeces|number_format(3, ',', ' ') }} DT</td>
+                        <td class="text-right">{{ row.totalCheque|number_format(3, ',', ' ') }} DT</td>
+                        <td class="text-right font-weight-bold text-primary">{{ row.totalGeneral|number_format(3, ',', ' ') }} DT</td>
+                    </tr>
+                {% endfor %}
+                <tr class="total-row">
+                    <td>TOTAL</td>
+                    <td class="text-center">{{ totalGlobalNb }}</td>
+                    <td class="text-right">{{ totalGlobalEspeces|number_format(3, ',', ' ') }} DT</td>
+                    <td class="text-right">{{ totalGlobalCheque|number_format(3, ',', ' ') }} DT</td>
+                    <td class="text-right">{{ totalGlobal|number_format(3, ',', ' ') }} DT</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+
+    <div class="section-title">Encaissements par Mois</div>
+    <table>
+        <thead>
+            <tr>
+                <th>Mois</th>
+                <th class="text-center">Nombre de paiements</th>
+                <th class="text-right">Total (DT)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if parMois is empty %}
+                <tr>
+                    <td colspan="3" class="text-center">Aucune donnée disponible.</td>
+                </tr>
+            {% else %}
+                {% set totalMoisNb    = 0 %}
+                {% set totalMoisTotal = 0 %}
+                {% for row in parMois %}
+                    {% set totalMoisNb    = totalMoisNb    + row.nb %}
+                    {% set totalMoisTotal = totalMoisTotal + row.total %}
+                    <tr>
+                        <td class="font-weight-bold">{{ row.label }}</td>
+                        <td class="text-center">{{ row.nb }}</td>
+                        <td class="text-right font-weight-bold text-success">{{ row.total|number_format(3, ',', ' ') }} DT</td>
+                    </tr>
+                {% endfor %}
+                <tr class="total-row">
+                    <td>TOTAL</td>
+                    <td class="text-center">{{ totalMoisNb }}</td>
+                    <td class="text-right">{{ totalMoisTotal|number_format(3, ',', ' ') }} DT</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+
+    <div class="footer">
+        kbadhapay — Système de Gestion des Paiements Municipaux — © {{ "now"|date("Y") }}
+    </div>
+</body>
+</html>

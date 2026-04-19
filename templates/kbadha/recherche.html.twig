@@ -1,0 +1,108 @@
+{% extends 'base.html.twig' %}
+{% block title %}Accueil Citoyen au Guichet{% endblock %}
+
+{% block body %}
+
+{# ── En-tête ─────────────────────────────────────────────────────── #}
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-search mr-2 text-primary"></i>
+            Accueil Citoyen au Guichet
+        </h1>
+        <p class="text-muted mb-0 small">
+            Identifiez le citoyen par son CIN pour accéder à son dossier
+        </p>
+    </div>
+    <a href="{{ path('kbadha_dashboard') }}" class="btn btn-outline-secondary btn-sm">
+        <i class="fas fa-arrow-left mr-1"></i>Retour au tableau de bord
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+
+        {# ── Card d'instruction ── #}
+        <div class="card border-left-primary shadow mb-4">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="mr-3">
+                        <i class="fas fa-id-card fa-3x text-primary"></i>
+                    </div>
+                    <div>
+                        <h5 class="font-weight-bold mb-1 text-gray-800">Présentation de la CIN</h5>
+                        <p class="text-muted mb-0 small">
+                            Le citoyen présente sa <strong>Carte d'Identité Nationale</strong>.
+                            Saisissez le numéro CIN (8 chiffres) pour rechercher son dossier et traiter ses obligations fiscales.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# ── Alerte si CIN non trouvé ── #}
+        {% if erreur %}
+            <div class="alert alert-warning alert-dismissible fade show shadow-sm mb-4" role="alert">
+                <i class="fas fa-exclamation-triangle mr-2"></i>
+                <strong>CIN "{{ cin }}" non trouvé.</strong>
+                Ce numéro n'est pas encore enregistré dans la base.
+                <a href="{{ path('admin_user_new') }}" class="btn btn-sm btn-outline-primary ml-2">
+                    <i class="fas fa-user-plus mr-1"></i>Créer un compte
+                </a>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Fermer">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endif %}
+
+        {# ── Formulaire de recherche ── #}
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-search mr-2"></i>Rechercher le dossier citoyen
+                </h6>
+            </div>
+            <div class="card-body py-4">
+                {{ form_start(form, {attr: {class: '', novalidate: 'novalidate'}}) }}
+
+                    <div class="form-group mb-4">
+                        {{ form_label(form.cin, 'Numéro CIN du citoyen', {label_attr: {class: 'font-weight-bold text-gray-700'}}) }}
+                        {{ form_widget(form.cin) }}
+                        <small class="form-text text-muted">
+                            <i class="fas fa-info-circle mr-1"></i>8 chiffres, sans espace ni tiret
+                        </small>
+                        {{ form_errors(form.cin) }}
+                    </div>
+
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary btn-lg btn-block">
+                            <i class="fas fa-search mr-2"></i>Rechercher le dossier
+                        </button>
+                    </div>
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+
+        {# ── Accès rapide ── #}
+        <div class="card shadow mt-3">
+            <div class="card-body py-3">
+                <div class="row text-center">
+                    <div class="col-6">
+                        <a href="{{ path('kbadha_dashboard') }}" class="btn btn-outline-secondary btn-block btn-sm">
+                            <i class="fas fa-tachometer-alt mr-1"></i>Tableau de bord
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="{{ path('admin_user_new') }}" class="btn btn-outline-primary btn-block btn-sm">
+                            <i class="fas fa-user-plus mr-1"></i>Nouveau citoyen
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

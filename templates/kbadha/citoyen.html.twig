@@ -1,0 +1,354 @@
+{% extends 'base.html.twig' %}
+{% block title %}Dossier Citoyen — {{ citoyen.cin }}{% endblock %}
+
+{% block stylesheets %}
+<style>
+/* ── Mode de paiement – radio stylisé ─────────────────────────────── */
+.mode-radio { display: none; }
+.mode-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #dee2e6;
+    border-radius: 10px;
+    padding: 1.2rem 1.5rem;
+    cursor: pointer;
+    transition: all .2s ease;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #6c757d;
+    min-height: 90px;
+}
+.mode-label .mode-icon { font-size: 2rem; margin-bottom: 0.3rem; }
+.mode-radio:checked + .mode-label {
+    border-color: #1cc88a;
+    background: #f0fff8;
+    color: #1cc88a;
+    box-shadow: 0 0 0 3px rgba(28,200,138,.15);
+}
+/* ── Total dynamique ─────────────────────────────────────────────── */
+#total-box {
+    background: #f8f9fc;
+    border: 2px solid #4e73df;
+    border-radius: 10px;
+    padding: 1rem 1.5rem;
+}
+</style>
+{% endblock %}
+
+{% block body %}
+
+{# ── En-tête ─────────────────────────────────────────────────────── #}
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-folder-open mr-2 text-primary"></i>
+            Dossier Citoyen
+        </h1>
+        <p class="text-muted mb-0 small">
+            Sélectionnez les éléments à régler puis validez l'encaissement
+        </p>
+    </div>
+    <a href="{{ path('kbadha_citoyen_recherche') }}" class="btn btn-outline-secondary btn-sm">
+        <i class="fas fa-arrow-left mr-1"></i>Nouvelle recherche
+    </a>
+</div>
+
+{# ── Card infos citoyen ────────────────────────────────────────────── #}
+<div class="card shadow mb-4 border-left-primary">
+    <div class="card-body py-3">
+        <div class="row align-items-center">
+            <div class="col-auto">
+                <i class="fas fa-user-circle fa-3x text-primary"></i>
+            </div>
+            <div class="col">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="text-xs text-muted text-uppercase mb-1">CIN</div>
+                        <div class="font-weight-bold text-gray-800">{{ citoyen.cin }}</div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-xs text-muted text-uppercase mb-1">Identifiant</div>
+                        <div class="font-weight-bold text-gray-800">{{ citoyen.userIdentifier }}</div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-xs text-muted text-uppercase mb-1">Rôle(s)</div>
+                        <div class="small">
+                            {% for role in citoyen.roles %}
+                                {% if role != 'ROLE_USER' %}
+                                    <span class="badge badge-light border">{{ role|replace({'ROLE_': ''}) }}</span>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# ════════════════════════════════════════════════════════════════════
+   FORMULAIRE D'ENCAISSEMENT
+════════════════════════════════════════════════════════════════════ #}
+<form action="{{ path('kbadha_payer') }}" method="POST" id="form-encaissement">
+    <input type="hidden" name="citoyen_id" value="{{ citoyen.id }}">
+
+    <div class="row">
+
+        {# ── Colonne gauche : Taxes + Infractions ── #}
+        <div class="col-lg-8">
+
+            {# ── Section Taxes dues ─────────────────────────────── #}
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-file-invoice-dollar mr-2"></i>Taxes dues
+                    </h6>
+                    <span class="badge badge-primary">{{ taxesDues|length }} taxe(s)</span>
+                </div>
+                <div class="card-body p-0">
+                    {% if taxesDues is empty %}
+                        <div class="text-center py-4 text-muted">
+                            <i class="fas fa-check-circle fa-2x text-success mb-2 d-block"></i>
+                            Aucune taxe impayée — ce citoyen est en règle.
+                        </div>
+                    {% else %}
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th width="40"><input type="checkbox" id="check-all-taxes" title="Tout cocher"></th>
+                                        <th>Nom de la taxe</th>
+                                        <th>Description</th>
+                                        <th class="text-right">Montant</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for taxe in taxesDues %}
+                                        <tr class="item-row" data-montant="{{ taxe.montant }}">
+                                            <td>
+                                                <input type="checkbox"
+                                                       class="item-check"
+                                                       name="taxe_ids[]"
+                                                       value="{{ taxe.id }}"
+                                                       id="taxe_{{ taxe.id }}">
+                                            </td>
+                                            <td>
+                                                <label for="taxe_{{ taxe.id }}" class="mb-0 font-weight-bold cursor-pointer">
+                                                    {{ taxe.nomTaxe }}
+                                                </label>
+                                            </td>
+                                            <td class="text-muted small">{{ taxe.description|slice(0,60) }}…</td>
+                                            <td class="text-right">
+                                                <span class="font-weight-bold text-primary">{{ taxe.montant }} DT</span>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            {# ── Section Amendes impayées ───────────────────────── #}
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-danger">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>Amendes impayées
+                    </h6>
+                    <span class="badge badge-danger">{{ infractions|length }} amende(s)</span>
+                </div>
+                <div class="card-body p-0">
+                    {% if infractions is empty %}
+                        <div class="text-center py-4 text-muted">
+                            <i class="fas fa-check-circle fa-2x text-success mb-2 d-block"></i>
+                            Aucune amende en attente.
+                        </div>
+                    {% else %}
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th width="40"><input type="checkbox" id="check-all-infractions" title="Tout cocher"></th>
+                                        <th>Type</th>
+                                        <th>Lieu</th>
+                                        <th>Plaque</th>
+                                        <th>Date</th>
+                                        <th class="text-right">Montant</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% set labelsInfra = {
+                                        'radar':'Radar','feu_rouge':'Feu rouge',
+                                        'stationnement':'Stationnement','telephone':'Téléphone',
+                                        'alcool':'Alcool','ceinture':'Ceinture'
+                                    } %}
+                                    {% for infraction in infractions %}
+                                        <tr class="item-row" data-montant="{{ infraction.montantAmende }}">
+                                            <td>
+                                                <input type="checkbox"
+                                                       class="item-check"
+                                                       name="infraction_ids[]"
+                                                       value="{{ infraction.id }}"
+                                                       id="infraction_{{ infraction.id }}">
+                                            </td>
+                                            <td>
+                                                <label for="infraction_{{ infraction.id }}" class="mb-0 font-weight-bold cursor-pointer">
+                                                    {{ labelsInfra[infraction.typeInfraction] ?? infraction.typeInfraction }}
+                                                </label>
+                                            </td>
+                                            <td class="text-muted small">{{ infraction.lieu|slice(0,25) }}</td>
+                                            <td>
+                                                <span class="badge badge-dark">{{ infraction.plaqueImmat }}</span>
+                                            </td>
+                                            <td class="text-muted small">
+                                                {{ infraction.dateInfraction ? infraction.dateInfraction|date('d/m/Y') : '—' }}
+                                            </td>
+                                            <td class="text-right">
+                                                <span class="font-weight-bold text-danger">{{ infraction.montantAmende }} DT</span>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+        {# /col-lg-8 #}
+
+        {# ── Colonne droite : Résumé + Mode + Bouton ── #}
+        <div class="col-lg-4">
+
+            {# Total dynamique #}
+            <div id="total-box" class="mb-4">
+                <div class="text-xs font-weight-bold text-primary text-uppercase mb-2">
+                    <i class="fas fa-calculator mr-1"></i>Total à encaisser
+                </div>
+                <div class="h2 font-weight-bold text-primary mb-0" id="total-display">0,000 DT</div>
+                <div class="small text-muted mt-1" id="selected-count">Aucun élément sélectionné</div>
+            </div>
+
+            {# Mode de paiement #}
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-gray-700">
+                        <i class="fas fa-hand-holding-usd mr-2"></i>Mode de paiement
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6">
+                            <input type="radio" name="mode" value="especes"
+                                   id="mode_especes" class="mode-radio" checked>
+                            <label for="mode_especes" class="mode-label w-100">
+                                <span class="mode-icon">💵</span>
+                                Espèces
+                            </label>
+                        </div>
+                        <div class="col-6">
+                            <input type="radio" name="mode" value="cheque"
+                                   id="mode_cheque" class="mode-radio">
+                            <label for="mode_cheque" class="mode-label w-100">
+                                <span class="mode-icon">📄</span>
+                                Chèque
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {# Bouton d'encaissement #}
+            <button type="submit" class="btn btn-success btn-lg btn-block shadow" id="btn-encaisser">
+                <i class="fas fa-check-circle mr-2"></i>
+                Encaisser et imprimer le reçu
+            </button>
+
+            <div class="text-center mt-2">
+                <small class="text-muted">
+                    <i class="fas fa-lock mr-1"></i>
+                    Transaction sécurisée — Agent : <strong>{{ app.user.userIdentifier }}</strong>
+                </small>
+            </div>
+
+        </div>
+        {# /col-lg-4 #}
+
+    </div>
+    {# /row #}
+
+</form>
+
+{% endblock %}
+
+{% block javascripts %}
+<script>
+(function () {
+    'use strict';
+
+    // ── Calcul du total dynamique ─────────────────────────────────────
+    function updateTotal() {
+        var checks  = document.querySelectorAll('.item-check:checked');
+        var total   = 0;
+        var count   = checks.length;
+
+        checks.forEach(function (cb) {
+            var row = cb.closest('.item-row');
+            if (row) {
+                total += parseFloat(row.getAttribute('data-montant') || '0');
+            }
+        });
+
+        document.getElementById('total-display').textContent =
+            total.toFixed(3).replace('.', ',') + ' DT';
+
+        document.getElementById('selected-count').textContent =
+            count > 0 ? count + ' élément(s) sélectionné(s)' : 'Aucun élément sélectionné';
+    }
+
+    // Attacher aux checkboxes individuelles
+    document.querySelectorAll('.item-check').forEach(function (cb) {
+        cb.addEventListener('change', updateTotal);
+    });
+
+    // ── Cocher tout — Taxes ───────────────────────────────────────────
+    var checkAllTaxes = document.getElementById('check-all-taxes');
+    if (checkAllTaxes) {
+        checkAllTaxes.addEventListener('change', function () {
+            document.querySelectorAll('input[name="taxe_ids[]"]').forEach(function (cb) {
+                cb.checked = checkAllTaxes.checked;
+            });
+            updateTotal();
+        });
+    }
+
+    // ── Cocher tout — Infractions ─────────────────────────────────────
+    var checkAllInfra = document.getElementById('check-all-infractions');
+    if (checkAllInfra) {
+        checkAllInfra.addEventListener('change', function () {
+            document.querySelectorAll('input[name="infraction_ids[]"]').forEach(function (cb) {
+                cb.checked = checkAllInfra.checked;
+            });
+            updateTotal();
+        });
+    }
+
+    // ── Rendre les lignes cliquables ─────────────────────────────────
+    document.querySelectorAll('.item-row').forEach(function (row) {
+        row.addEventListener('click', function (e) {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'LABEL') return;
+            var cb = row.querySelector('.item-check');
+            if (cb) { cb.checked = !cb.checked; updateTotal(); }
+        });
+        row.style.cursor = 'pointer';
+    });
+
+    // Initialiser
+    updateTotal();
+})();
+</script>
+{% endblock %}

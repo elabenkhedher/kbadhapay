@@ -1,0 +1,111 @@
+{% extends 'base.html.twig' %}
+{% block title %}Liste des Infractions{% endblock %}
+
+{% block body %}
+
+{% for msg in app.flashes('success') %}<div class="alert alert-success alert-dismissible fade show shadow-sm"><i class="fas fa-check-circle mr-2"></i>{{ msg }}<button type="button" class="close" data-dismiss="alert">&times;</button></div>{% endfor %}
+{% for msg in app.flashes('danger') %}<div class="alert alert-danger alert-dismissible fade show shadow-sm"><i class="fas fa-exclamation-circle mr-2"></i>{{ msg }}<button type="button" class="close" data-dismiss="alert">&times;</button></div>{% endfor %}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-3">
+    <h1 class="h3 mb-0 text-gray-800">
+        <i class="fas fa-exclamation-triangle mr-2 text-warning"></i>Liste des Infractions
+    </h1>
+    <a href="{{ path('admin_infraction_new') }}" class="btn btn-primary btn-sm shadow-sm">
+        <i class="fas fa-plus fa-sm mr-1"></i>Enregistrer une Infraction
+    </a>
+</div>
+
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb bg-white shadow-sm small">
+        <li class="breadcrumb-item"><a href="{{ path('admin_dashboard') }}"><i class="fas fa-home mr-1"></i>Accueil</a></li>
+        <li class="breadcrumb-item active">Infractions</li>
+    </ol>
+</nav>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-warning">
+            <i class="fas fa-table mr-2"></i>Toutes les infractions
+            <span class="badge badge-warning ml-1">{{ infractions|length }}</span>
+        </h6>
+    </div>
+    <div class="card-body">
+        {% if infractions is empty %}
+            <div class="alert alert-info mb-0">
+                <i class="fas fa-info-circle mr-2"></i>Aucune infraction enregistrée.
+            </div>
+        {% else %}
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered table-sm" width="100%">
+                    <thead class="thead-light">
+                        <tr>
+                            <th style="width:50px">#</th>
+                            <th>Type</th>
+                            <th>CIN Citoyen</th>
+                            <th>Lieu</th>
+                            <th>Plaque</th>
+                            <th class="text-right">Montant</th>
+                            <th class="text-center">Statut</th>
+                            <th style="width:145px" class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for infraction in infractions %}
+                            <tr>
+                                <td class="text-center text-muted">{{ infraction.id }}</td>
+                                <td>
+                                    <span class="font-weight-bold">
+                                        {% set labels = {
+                                            'radar': 'Radar',
+                                            'feu_rouge': 'Feu rouge',
+                                            'stationnement': 'Stationnement',
+                                            'telephone': 'Téléphone',
+                                            'alcool': 'Alcool',
+                                            'ceinture': 'Ceinture'
+                                        } %}
+                                        {{ labels[infraction.typeInfraction] ?? infraction.typeInfraction }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {{ infraction.user ? infraction.user.cin : '<span class="text-muted">—</span>'|raw }}
+                                </td>
+                                <td class="text-muted small">{{ infraction.lieu }}</td>
+                                <td>
+                                    <span class="badge badge-light border">{{ infraction.plaqueImmat }}</span>
+                                </td>
+                                <td class="text-right font-weight-bold">
+                                    {{ infraction.montantAmende|number_format(3, ',', ' ') }} DT
+                                </td>
+                                <td class="text-center">
+                                    {% if infraction.statut == 'a_payer' %}
+                                        <span class="badge badge-warning px-2 py-1 text-dark"><i class="fas fa-clock mr-1"></i>À Payer</span>
+                                    {% elseif infraction.statut == 'paye' %}
+                                        <span class="badge badge-success px-2 py-1"><i class="fas fa-check mr-1"></i>Payé</span>
+                                    {% elseif infraction.statut == 'conteste' %}
+                                        <span class="badge badge-danger px-2 py-1"><i class="fas fa-gavel mr-1"></i>Contesté</span>
+                                    {% else %}
+                                        <span class="badge badge-secondary px-2 py-1">{{ infraction.statut }}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    <a href="{{ path('admin_infraction_show', {id: infraction.id}) }}"
+                                       class="btn btn-info btn-sm" title="Consulter"><i class="fas fa-eye"></i></a>
+                                    <a href="{{ path('admin_infraction_edit', {id: infraction.id}) }}"
+                                       class="btn btn-warning btn-sm" title="Modifier"><i class="fas fa-edit"></i></a>
+                                    <form action="{{ path('admin_infraction_delete', {id: infraction.id}) }}"
+                                          method="POST" class="d-inline"
+                                          onsubmit="return confirm('Confirmer la suppression ?')">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ infraction.id) }}">
+                                        <button class="btn btn-danger btn-sm" title="Supprimer"><i class="fas fa-trash"></i></button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

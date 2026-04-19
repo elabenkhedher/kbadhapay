@@ -1,0 +1,103 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Réclamation #{{ reclamation.id }} — kbadhapay{% endblock %}
+
+{% block body %}
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">
+        <i class="fas fa-envelope-open-text mr-2 text-primary"></i>Réclamation #{{ reclamation.id }}
+    </h1>
+    <a href="{{ path('admin_reclamation_index') }}" class="btn btn-sm btn-secondary shadow-sm">
+        <i class="fas fa-arrow-left fa-sm text-white-50 mr-1"></i>Retour
+    </a>
+</div>
+
+<div class="row">
+    {# Colonne Gauche : Détails de la réclamation #}
+    <div class="col-lg-7">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-primary">Contenu du message</h6>
+                <span class="badge {% if reclamation.statut == 'resolue' %}badge-success{% elseif reclamation.statut == 'en_cours' %}badge-warning text-dark{% elseif reclamation.statut == 'rejetee' %}badge-danger{% else %}badge-secondary{% endif %} px-3 py-2">
+                    {{ reclamation.statut|upper }}
+                </span>
+            </div>
+            <div class="card-body">
+                <p class="small text-muted mb-1">Sujet :</p>
+                <h5 class="font-weight-bold text-dark mb-4">{{ reclamation.sujet }}</h5>
+                
+                <p class="small text-muted mb-1">Description / Message :</p>
+                <div class="bg-light p-3 rounded mb-4" style="min-height: 150px; border-left: 4px solid #4e73df;">
+                    {{ reclamation.description|nl2br }}
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <p class="small text-muted mb-1">Déposée le :</p>
+                        <p class="font-weight-bold">{{ reclamation.dateSoumission ? reclamation.dateSoumission|date('d/m/Y à H:i') : '—' }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="small text-muted mb-1">Citoyen :</p>
+                        <p class="font-weight-bold">
+                            <i class="fas fa-user-circle mr-1"></i>
+                            {{ reclamation.user ? reclamation.user.cin : '—' }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# Affichage de la réponse si elle existe #}
+        {% if reclamation.reponse is defined and reclamation.reponse %}
+            <div class="card shadow mb-4 border-left-info">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-info">Dernière réponse apportée</h6>
+                </div>
+                <div class="card-body bg-gray-100">
+                    {{ reclamation.reponse|nl2br }}
+                    <hr>
+                    <p class="small text-muted mb-0">
+                        Traitée par : {{ reclamation.agent ? reclamation.agent.cin : 'Système' }}
+                    </p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    {# Colonne Droite : Formulaire de réponse #}
+    <div class="col-lg-5">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Répondre au citoyen</h6>
+            </div>
+            <div class="card-body">
+                {{ form_start(formRepondre) }}
+                    <div class="mb-3">
+                        {{ form_label(formRepondre.statut) }}
+                        {{ form_widget(formRepondre.statut) }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form_label(formRepondre.reponse) }}
+                        {{ form_widget(formRepondre.reponse) }}
+                    </div>
+                    {{ form_widget(formRepondre.submit) }}
+                {{ form_end(formRepondre) }}
+            </div>
+        </div>
+
+        {# Suppression #}
+        <div class="card shadow mb-4 border-left-danger">
+            <div class="card-body">
+                <h6 class="font-weight-bold text-danger">Zone de danger</h6>
+                <p class="small text-muted">Supprimer cette réclamation de la base de données.</p>
+                <form method="post" action="{{ path('admin_reclamation_delete', {'id': reclamation.id}) }}" onsubmit="return confirm('Supprimer définitivement cette réclamation ?');">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ reclamation.id) }}">
+                    <button class="btn btn-outline-danger btn-sm btn-block">
+                        <i class="fas fa-trash mr-1"></i>Supprimer la réclamation
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
