@@ -21,18 +21,26 @@
             <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
                 <thead class="thead-light">
                     <tr>
+<<<<<<< HEAD
                         <th>Réf</th>
                         <th>Citoyen (CIN)</th>
                         <th>Montant</th>
                         <th>Mode</th>
                         <th>Date Soumission</th>
                         <th>Actions</th>
+=======
+                        <th>ID</th>
+                        <th>Type</th>
+                        <th>Citoyen (CIN)</th>
+                        <th>Montant</th>
+>>>>>>> 1db43f20671c9056a1768bbbcec7dc29b3b3cbff
                     </tr>
                 </thead>
                 <tbody>
                 {% for p in paiements %}
                     <tr>
                         <td>#{{ '%05d'|format(p.id) }}</td>
+<<<<<<< HEAD
                         <td>{{ p.user ? p.user.cin : '—' }}</td>
                         <td class="font-weight-bold">{{ p.montant|number_format(3, ',', ' ') }} DT</td>
                         <td>
@@ -44,6 +52,11 @@
                                 <i class="fas fa-search mr-1"></i>Examiner
                             </a>
                         </td>
+=======
+                        <td> {{ p.getTypeInfraction() }} </td>
+                        <td>{{ p.user ? p.user.cin : '—' }}</td>
+                        <td class="font-weight-bold"> {{ p.getMontantAmende() }} DT</td>
+>>>>>>> 1db43f20671c9056a1768bbbcec7dc29b3b3cbff
                     </tr>
                 {% else %}
                     <tr>
