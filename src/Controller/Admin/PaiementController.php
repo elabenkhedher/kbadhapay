@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Entity\Paiement;
 use App\Repository\PaiementRepository;
+use App\Repository\InfractionRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,12 +27,11 @@ class PaiementController extends AbstractController
 
     // ── Paiements en attente uniquement ───────────────────────────
     #[Route('/en-attente', name: 'en_attente', methods: ['GET'])]
-    public function enAttente(PaiementRepository $repo): Response
+    public function enAttente(InfractionRepository $repo): Response
     {
         return $this->render('admin/paiement/en_attente.html.twig', [
             'paiements' => $repo->findBy(
-                ['statut' => 'en_attente'],
-                ['date_soumission' => 'ASC']  // plus anciens en premier
+                ['statut' => 'a_payer']            
             ),
         ]);
     }
