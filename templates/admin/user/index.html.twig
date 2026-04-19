@@ -41,6 +41,7 @@
                         <tr>
                             <th style="width:60px">#</th>
                             <th>CIN</th>
+                            <th>Num Tel</th>
                             <th>Nom</th>
                             <th class="text-center">Rôle principal</th>
                             <th style="width:145px" class="text-center">Actions</th>
@@ -58,6 +59,7 @@
                             <tr>
                                 <td class="text-center text-muted">{{ user.id }}</td>
                                 <td class="font-weight-bold font-monospace">{{ user.cin }}</td>
+                                <td>{{ user.telephone }}</td>
                                 <td>{{ user.userIdentifier }}</td>
                                 <td class="text-center">
                                     {% if role == 'ROLE_ADMIN' %}

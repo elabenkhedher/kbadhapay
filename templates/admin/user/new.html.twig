@@ -42,6 +42,14 @@
                         {{ form_errors(form.cin) }}
                     </div>
 
+                    {# Num Tel #}
+                    <div class="form-group">
+                        {{ form_label(form.telephone, null, {label_attr: {class: 'font-weight-bold'}}) }}
+                        {{ form_widget(form.telephone, {attr: {class: 'form-control', maxlength: 8, pattern: '[0-9]{8}', placeholder: '8 chiffres', inputmode: 'numeric'}}) }}
+                        <small class="text-muted">Le Num Tel sera utilisé pour envoyer les messages.</small>
+                        {{ form_errors(form.telephone) }}
+                    </div>
+
                     {# Mot de passe #}
                     <div class="form-group">
                         {{ form_label(form.plainPassword, null, {label_attr: {class: 'font-weight-bold'}}) }}

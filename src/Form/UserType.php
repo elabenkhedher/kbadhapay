@@ -25,15 +25,15 @@ class UserType extends AbstractType
         $builder
             // ── Numéro CIN ───────────────────────────────────────
             ->add('cin', TextType::class, [
-                'label'       => 'Numéro CIN',
-                'attr'        => [
-                    'class'       => 'form-control',
-                    'maxlength'   => 8,
-                    'pattern'     => '[0-9]{8}',
+                'label' => 'Numéro CIN',
+                'attr' => [
+                    'class' => 'form-control',
+                    'maxlength' => 8,
+                    'pattern' => '[0-9]{8}',
                     'placeholder' => '8 chiffres',
-                    'inputmode'   => 'numeric',
+                    'inputmode' => 'numeric',
                 ],
-                'label_attr'  => ['class' => 'font-weight-bold'],
+                'label_attr' => ['class' => 'font-weight-bold'],
                 'constraints' => [
                     new NotBlank(message: 'Le CIN est obligatoire.'),
                     new Length(exactly: 8, exactMessage: 'Le CIN doit contenir exactement {{ limit }} chiffres.'),
@@ -42,16 +42,16 @@ class UserType extends AbstractType
 
             // ── Numéro de téléphone ──────────────────────────────
             ->add('telephone', TelType::class, [
-                'label'       => 'Numéro de téléphone',
-                'required'    => false,
-                'attr'        => [
-                    'class'       => 'form-control',
-                    'maxlength'   => 8,
-                    'pattern'     => '[0-9]{8}',
+                'label' => 'Numéro de téléphone',
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-control',
+                    'maxlength' => 8,
+                    'pattern' => '[0-9]{8}',
                     'placeholder' => 'Ex : 20123456',
-                    'inputmode'   => 'tel',
+                    'inputmode' => 'tel',
                 ],
-                'label_attr'  => ['class' => 'font-weight-bold'],
+                'label_attr' => ['class' => 'font-weight-bold'],
                 'constraints' => [
                     new Regex(
                         pattern: '/^[0-9]{8}$/',
@@ -62,13 +62,13 @@ class UserType extends AbstractType
 
             // ── Rôles ────────────────────────────────────────────
             ->add('roles', ChoiceType::class, [
-                'label'      => 'Rôle',
-                'multiple'   => true,
-                'expanded'   => true,
-                'choices'    => [
-                    'Citoyen'        => 'ROLE_CITOYEN',
-                    'Agent Police'   => 'ROLE_POLICE',
-                    'Agent Kbadha'   => 'ROLE_KBADHA',
+                'label' => 'Rôle',
+                'multiple' => true,
+                'expanded' => true,
+                'choices' => [
+                    'Citoyen' => 'ROLE_CITOYEN',
+                    'Agent Police' => 'ROLE_POLICE',
+                    'Agent Kbadha' => 'ROLE_KBADHA',
                     'Administrateur' => 'ROLE_ADMIN',
                 ],
                 'label_attr' => ['class' => 'font-weight-bold d-block mb-1'],
@@ -76,11 +76,11 @@ class UserType extends AbstractType
 
             // ── Mot de passe (non mappé — haché dans le controller) ──
             ->add('plainPassword', PasswordType::class, [
-                'label'       => $isEdit ? 'Nouveau mot de passe (laisser vide pour ne pas changer)' : 'Mot de passe',
-                'mapped'      => false,
-                'required'    => !$isEdit,
-                'attr'        => ['class' => 'form-control', 'autocomplete' => 'new-password'],
-                'label_attr'  => ['class' => 'font-weight-bold'],
+                'label' => $isEdit ? 'Nouveau mot de passe (laisser vide pour ne pas changer)' : 'Mot de passe',
+                'mapped' => false,
+                'required' => !$isEdit,
+                'attr' => ['class' => 'form-control', 'autocomplete' => 'new-password'],
+                'label_attr' => ['class' => 'font-weight-bold'],
                 'constraints' => $isEdit ? [] : [
                     new NotBlank(message: 'Le mot de passe est obligatoire.'),
                     new Length(min: 6, minMessage: 'Le mot de passe doit contenir au moins {{ limit }} caractères.'),
@@ -93,7 +93,7 @@ class UserType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => User::class,
-            'is_edit'    => false,
+            'is_edit' => false,    // Passer true lors de l'édition
         ]);
 
         $resolver->setAllowedTypes('is_edit', 'bool');
