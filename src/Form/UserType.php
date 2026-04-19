@@ -8,11 +8,13 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
+use Symfony\Component\Form\Extension\Core\Type\TelType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Regex;
 
 class UserType extends AbstractType
 {
@@ -25,16 +27,36 @@ class UserType extends AbstractType
             ->add('cin', TextType::class, [
                 'label'       => 'Numéro CIN',
                 'attr'        => [
-                    'class'     => 'form-control',
-                    'maxlength' => 8,
-                    'pattern'   => '[0-9]{8}',
+                    'class'       => 'form-control',
+                    'maxlength'   => 8,
+                    'pattern'     => '[0-9]{8}',
                     'placeholder' => '8 chiffres',
-                    'inputmode' => 'numeric',
+                    'inputmode'   => 'numeric',
                 ],
                 'label_attr'  => ['class' => 'font-weight-bold'],
                 'constraints' => [
                     new NotBlank(message: 'Le CIN est obligatoire.'),
                     new Length(exactly: 8, exactMessage: 'Le CIN doit contenir exactement {{ limit }} chiffres.'),
+                ],
+            ])
+
+            // ── Numéro de téléphone ──────────────────────────────
+            ->add('telephone', TelType::class, [
+                'label'       => 'Numéro de téléphone',
+                'required'    => false,
+                'attr'        => [
+                    'class'       => 'form-control',
+                    'maxlength'   => 8,
+                    'pattern'     => '[0-9]{8}',
+                    'placeholder' => 'Ex : 20123456',
+                    'inputmode'   => 'tel',
+                ],
+                'label_attr'  => ['class' => 'font-weight-bold'],
+                'constraints' => [
+                    new Regex(
+                        pattern: '/^[0-9]{8}$/',
+                        message: 'Le numéro de téléphone doit contenir exactement 8 chiffres.'
+                    ),
                 ],
             ])
 
@@ -71,7 +93,7 @@ class UserType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => User::class,
-            'is_edit'    => false,    // Passer true lors de l'édition
+            'is_edit'    => false,
         ]);
 
         $resolver->setAllowedTypes('is_edit', 'bool');
