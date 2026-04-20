@@ -1,0 +1,581 @@
+{# templates/profile/documents.html.twig #}
+
+{% extends 'base.html.twig' %}
+
+{% block title %}Documents d'identité{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+        :root {
+            --bg: #f4f6f9;
+            --surface: #ffffff;
+            --surface-hover: #fcfcfd;
+            --border: #e2e8f0;
+            --border-hover: #cbd5e1;
+            --accent: #4e73df;
+            --accent-glow: rgba(78, 115, 223, 0.1);
+            --accent-hover: #2e59d9;
+            --success: #1cc88a;
+            --danger: #e74a3b;
+            --text-dark: #2d3748;
+            --text-muted: #718096;
+            --radius: 16px;
+        }
+
+        body {
+            background-color: var(--bg);
+        }
+
+        /* ── Page layout ─────────────────────────────────── */
+        .docs-page {
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 3rem 1rem 5rem;
+            font-family: 'DM Sans', sans-serif;
+            color: var(--text-dark);
+        }
+
+        .docs-header {
+            margin-bottom: 3.5rem;
+            text-align: center;
+        }
+
+        .docs-header .eyebrow {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.75rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--accent);
+            background: var(--accent-glow);
+            padding: 0.4rem 1rem;
+            border-radius: 50px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.25rem;
+            font-weight: 700;
+        }
+
+        .docs-header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin: 0 0 1rem;
+            letter-spacing: -0.02em;
+        }
+
+        .docs-header p {
+            font-size: 1.05rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin: 0 auto;
+            max-width: 550px;
+        }
+
+        /* ── Flash alerts ────────────────────────────────── */
+        .flash {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            border: 1px solid transparent;
+            animation: slideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .flash-success {
+            background: #f0fdf4;
+            border-color: #bbf7d0;
+            color: #166534;
+        }
+
+        .flash-error {
+            background: #fef2f2;
+            border-color: #fecaca;
+            color: #991b1b;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-15px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── Document card ───────────────────────────────── */
+        .doc-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: 2rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+        }
+
+        .doc-card:hover {
+            box-shadow: 0 12px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+            border-color: var(--border-hover);
+        }
+
+        .doc-card:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px var(--accent-glow);
+        }
+
+        .doc-card-header {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            padding: 1.5rem 1.75rem;
+            border-bottom: 1px solid var(--border);
+            background: #fafbfc;
+        }
+
+        .doc-card-header .icon {
+            width: 54px;
+            height: 54px;
+            border-radius: 14px;
+            background: #fff;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        }
+
+        .doc-card-header .title {
+            font-weight: 800;
+            font-size: 1.15rem;
+            color: var(--text-dark);
+            margin-bottom: 0.2rem;
+        }
+
+        .doc-card-header .subtitle {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .doc-card-body {
+            padding: 2rem 1.75rem;
+        }
+
+        /* ── Current file preview ────────────────────────── */
+        .current-file {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            padding: 1rem 1.25rem;
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            transition: background 0.2s;
+        }
+        .current-file:hover {
+            background: #f1f5f9;
+        }
+
+        .current-file img {
+            width: 64px;
+            height: 64px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .current-file .file-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 8px;
+            background: #fff;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            flex-shrink: 0;
+        }
+
+        .current-file-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .current-file-info .label {
+            font-size: 0.75rem;
+            color: var(--success);
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.4rem;
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .current-file-info .filename {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .view-link {
+            font-size: 0.9rem;
+            color: var(--accent);
+            background: var(--accent-glow);
+            padding: 0.6rem 1.1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            white-space: nowrap;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+
+        .view-link:hover { 
+            background: var(--accent);
+            color: #fff;
+            text-decoration: none;
+        }
+
+        /* ── Drop zone / file input ──────────────────────── */
+        .drop-zone {
+            position: relative;
+            border: 2px dashed #cbd5e1;
+            border-radius: 14px;
+            padding: 3rem 1rem;
+            text-align: center;
+            cursor: pointer;
+            background: #fafbfc;
+            transition: all 0.2s ease;
+        }
+
+        .drop-zone:hover,
+        .drop-zone.dragover {
+            border-color: var(--accent);
+            background: var(--accent-glow);
+        }
+
+        .drop-zone input[type="file"] {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+            z-index: 2;
+        }
+
+        .drop-zone .dz-icon {
+            width: 56px;
+            height: 56px;
+            background: #fff;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            margin-bottom: 1.25rem;
+            color: var(--accent);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+            transition: transform 0.2s;
+        }
+        
+        .drop-zone:hover .dz-icon {
+            transform: translateY(-4px) scale(1.05);
+        }
+
+        .drop-zone .dz-label {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        
+        .drop-zone .dz-hint {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            display: block;
+            font-weight: 500;
+        }
+
+        .drop-zone .dz-selected {
+            margin-top: 1.25rem;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #166534;
+            display: none;
+            background: #f0fdf4;
+            padding: 0.6rem 1.25rem;
+            border-radius: 8px;
+            border: 1px solid #bbf7d0;
+        }
+
+        /* form errors */
+        .form-errors {
+            margin-top: 1rem;
+            list-style: none;
+            padding: 0;
+        }
+
+        .form-errors li {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #991b1b;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #fef2f2;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            border: 1px solid #fecaca;
+        }
+
+        /* ── Submit button ───────────────────────────────── */
+        .btn-upload {
+            width: 100%;
+            padding: 1.25rem;
+            background: linear-gradient(135deg, var(--accent) 0%, #2e59d9 100%);
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 800;
+            letter-spacing: 0.03em;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 10px 20px -5px rgba(78, 115, 223, 0.3);
+            margin-top: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-upload:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 25px -5px rgba(78, 115, 223, 0.4);
+            opacity: 0.95;
+        }
+
+        .btn-upload:active {
+            transform: translateY(0);
+        }
+
+        /* ── Status badge ────────────────────────────────── */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.85rem;
+            font-weight: 800;
+            padding: 0.4rem 1rem;
+            border-radius: 99px;
+            margin-left: auto;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+        }
+
+        .status-badge.uploaded {
+            background: #f0fdf4;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .status-badge.missing {
+            background: #fff1f2;
+            color: #be123c;
+            border: 1px solid #fecdd3;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="docs-page">
+
+    {# ── Header ────────────────────────────────────────────── #}
+    <div class="docs-header">
+        <div class="eyebrow">Compte · Documents</div>
+        <h1>Documents d'identité</h1>
+        <p>Téléchargez votre carte d'identité nationale et/ou votre passeport pour vérification. Formats acceptés : JPEG, PNG, WEBP, PDF — max 5 Mo chacun.</p>
+    </div>
+
+    {# ── Flash messages ────────────────────────────────────── #}
+    {% for message in app.flashes('success') %}
+        <div class="flash flash-success">✔ {{ message }}</div>
+    {% endfor %}
+    {% for message in app.flashes('error') %}
+        <div class="flash flash-error">✕ {{ message }}</div>
+    {% endfor %}
+
+    {{ form_start(form) }}
+
+        {# ── National ID card ──────────────────────────────── #}
+        <div class="doc-card">
+            <div class="doc-card-header">
+                <div class="icon">🪪</div>
+                <div>
+                    <div class="title">Carte d'Identité Nationale</div>
+                    <div class="subtitle">CIN ou document d'identité national équivalent</div>
+                </div>
+                {% if user.idDocumentPath %}
+                    <span class="status-badge uploaded"><span class="status-dot"></span>Téléchargé</span>
+                {% else %}
+                    <span class="status-badge missing"><span class="status-dot"></span>Manquant</span>
+                {% endif %}
+            </div>
+            <div class="doc-card-body">
+
+                {# Current file preview #}
+                {% if user.idDocumentPath %}
+                    {% set ext = user.idDocumentPath|split('.')|last|lower %}
+                    <div class="current-file">
+                        {% if ext in ['jpg', 'jpeg', 'png', 'webp'] %}
+                            <img src="{{ asset(user.idDocumentPath) }}" alt="National ID preview">
+                        {% else %}
+                            <div class="file-icon">📄</div>
+                        {% endif %}
+                        <div class="current-file-info">
+                            <div class="label">✔ Fichier téléchargé</div>
+                            <div class="filename">{{ user.idDocumentPath|split('/')|last }}</div>
+                        </div>
+                        <a href="{{ asset(user.idDocumentPath) }}" target="_blank" class="view-link">Voir ↗</a>
+                    </div>
+                {% endif %}
+
+                {# Drop zone #}
+                <div class="drop-zone" id="dz-id">
+                    {{ form_widget(form.idDocumentPath) }}
+                    <span class="dz-icon">⬆</span>
+                    <span class="dz-label">{{ user.idDocumentPath ? 'Remplacer le fichier' : 'Cliquez ou glissez pour télécharger' }}</span>
+                    <span class="dz-hint">JPEG · PNG · WEBP · PDF — max 5 Mo</span>
+                    <span class="dz-selected" id="dz-id-name"></span>
+                </div>
+
+                {# Validation errors #}
+                {% if form.idDocumentPath.vars.errors|length > 0 %}
+                    <ul class="form-errors">
+                        {% for error in form.idDocumentPath.vars.errors %}
+                            <li>{{ error.message }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+
+            </div>
+        </div>
+
+        {# ── Passport ──────────────────────────────────────── #}
+        <div class="doc-card">
+            <div class="doc-card-header">
+                <div class="icon">🛂</div>
+                <div>
+                    <div class="title">Passeport</div>
+                    <div class="subtitle">Page des données biographiques (photo + infos personnelles)</div>
+                </div>
+                {% if user.passportPath %}
+                    <span class="status-badge uploaded"><span class="status-dot"></span>Téléchargé</span>
+                {% else %}
+                    <span class="status-badge missing"><span class="status-dot"></span>Manquant</span>
+                {% endif %}
+            </div>
+            <div class="doc-card-body">
+
+                {# Current file preview #}
+                {% if user.passportPath %}
+                    {% set ext = user.passportPath|split('.')|last|lower %}
+                    <div class="current-file">
+                        {% if ext in ['jpg', 'jpeg', 'png', 'webp'] %}
+                            <img src="{{ asset(user.passportPath) }}" alt="Passport preview">
+                        {% else %}
+                            <div class="file-icon">📄</div>
+                        {% endif %}
+                        <div class="current-file-info">
+                            <div class="label">✔ Fichier téléchargé</div>
+                            <div class="filename">{{ user.passportPath|split('/')|last }}</div>
+                        </div>
+                        <a href="{{ asset(user.passportPath) }}" target="_blank" class="view-link">Voir ↗</a>
+                    </div>
+                {% endif %}
+
+                {# Drop zone #}
+                <div class="drop-zone" id="dz-passport">
+                    {{ form_widget(form.passportPath) }}
+                    <span class="dz-icon">⬆</span>
+                    <span class="dz-label">{{ user.passportPath ? 'Remplacer le fichier' : 'Cliquez ou glissez pour télécharger' }}</span>
+                    <span class="dz-hint">JPEG · PNG · WEBP · PDF — max 5 Mo</span>
+                    <span class="dz-selected" id="dz-passport-name"></span>
+                </div>
+
+                {# Validation errors #}
+                {% if form.passportPath.vars.errors|length > 0 %}
+                    <ul class="form-errors">
+                        {% for error in form.passportPath.vars.errors %}
+                            <li>{{ error.message }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+
+            </div>
+        </div>
+
+        <button type="submit" class="btn-upload">Enregistrer les documents</button>
+
+    {{ form_end(form) }}
+
+</div>
+
+<script>
+    // Show selected filename inside the drop zone
+    function bindDropZone(inputSelector, labelId, zoneId) {
+        const input = document.querySelector(inputSelector);
+        const label = document.getElementById(labelId);
+        const zone  = document.getElementById(zoneId);
+
+        if (!input || !label || !zone) return;
+
+        input.addEventListener('change', () => {
+            if (input.files.length > 0) {
+                label.textContent = '✔ ' + input.files[0].name;
+                label.style.display = 'inline-block';
+            }
+        });
+
+        zone.addEventListener('dragover',  e => { e.preventDefault(); zone.classList.add('dragover'); });
+        zone.addEventListener('dragleave', ()  => zone.classList.remove('dragover'));
+        zone.addEventListener('drop',      e => {
+            e.preventDefault();
+            zone.classList.remove('dragover');
+            if (e.dataTransfer.files.length > 0) {
+                input.files = e.dataTransfer.files;
+                label.textContent = '✔ ' + e.dataTransfer.files[0].name;
+                label.style.display = 'inline-block';
+            }
+        });
+    }
+
+    bindDropZone('#{{ form.idDocumentPath.vars.id }}',  'dz-id-name',       'dz-id');
+    bindDropZone('#{{ form.passportPath.vars.id }}',    'dz-passport-name', 'dz-passport');
+</script>
+{% endblock %}

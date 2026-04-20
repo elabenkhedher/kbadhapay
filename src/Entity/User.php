@@ -44,6 +44,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(nullable: true)]
     private ?array $push_subscription = null;
 
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $idDocumentPath = null;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $passportPath = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -159,6 +165,30 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->push_subscription = $push_subscription;
 
+        return $this;
+    }
+
+    public function getIdDocumentPath(): ?string
+    {
+        return $this->idDocumentPath;
+    }
+    
+    public function setIdDocumentPath(?string $idDocumentPath): static
+    {
+        $this->idDocumentPath = $idDocumentPath;
+    
+        return $this;
+    }
+    
+    public function getPassportPath(): ?string
+    {
+        return $this->passportPath;
+    }
+    
+    public function setPassportPath(?string $passportPath): static
+    {
+        $this->passportPath = $passportPath;
+    
         return $this;
     }
 }

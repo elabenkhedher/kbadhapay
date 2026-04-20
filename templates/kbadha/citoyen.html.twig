@@ -3,36 +3,319 @@
 
 {% block stylesheets %}
 <style>
-/* ── Mode de paiement – radio stylisé ─────────────────────────────── */
+/* ── Custom Table UI ─────────────────────────────────────────────── */
+.table-custom {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+.table-custom thead th {
+    border-top: none;
+    border-bottom: 2px solid #e3e6f0;
+    color: #4a5568;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: #f8f9fc;
+}
+.table-custom tbody tr {
+    transition: all 0.2s;
+}
+.table-custom tbody tr:hover {
+    background-color: #f1f3f9;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    z-index: 10;
+    position: relative;
+}
+.table-custom tbody td {
+    vertical-align: middle;
+    border-top: 1px dashed #eaecf4;
+}
+.table-custom tbody tr:first-child td {
+    border-top: none;
+}
+
+/* ── Custom Checkbox ─────────────────────────────────────────────── */
+.custom-checkbox-container {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    cursor: pointer;
+    font-size: 22px;
+    user-select: none;
+}
+.custom-checkbox-container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+.checkmark {
+    position: relative;
+    height: 24px;
+    width: 24px;
+    background-color: #fff;
+    border: 2px solid #bbc1d1;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+.custom-checkbox-container:hover input ~ .checkmark {
+    border-color: #4e73df;
+    background-color: #f8f9fc;
+}
+.custom-checkbox-container input:checked ~ .checkmark {
+    background-color: #4e73df;
+    border-color: #4e73df;
+}
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+.custom-checkbox-container input:checked ~ .checkmark:after {
+    display: block;
+}
+.custom-checkbox-container .checkmark:after {
+    left: 7px;
+    top: 3px;
+    width: 6px;
+    height: 12px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+/* ── Total Box Upgrade ───────────────────────────────────────────── */
+#total-box {
+    background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+    border: none;
+    border-radius: 16px;
+    padding: 1.5rem 2rem;
+    color: white;
+    box-shadow: 0 0.5rem 1rem rgba(78, 115, 223, 0.25);
+    position: relative;
+    overflow: hidden;
+}
+#total-box::before {
+    content: '';
+    position: absolute;
+    top: -50px;
+    right: -50px;
+    width: 150px;
+    height: 150px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+}
+#total-box .text-primary {
+    color: #e3e6f0 !important;
+}
+#total-box #total-display {
+    color: #ffffff !important;
+    font-size: 2.2rem;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+#total-box .text-muted {
+    color: #d1d3e2 !important;
+}
+
+/* ── Payment Mode Fixes ──────────────────────────────────────────── */
 .mode-radio { display: none; }
 .mode-label {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    border: 2px solid #dee2e6;
-    border-radius: 10px;
-    padding: 1.2rem 1.5rem;
+    border: 2px solid #eaecf4;
+    border-radius: 12px;
+    background: #fff;
+    padding: 1.5rem 1rem;
     cursor: pointer;
     transition: all .2s ease;
     font-size: 1rem;
     font-weight: 600;
     color: #6c757d;
-    min-height: 90px;
+    box-shadow: 0 0.15rem 0.5rem 0 rgba(58, 59, 69, 0.05);
 }
-.mode-label .mode-icon { font-size: 2rem; margin-bottom: 0.3rem; }
+.mode-label:hover {
+    border-color: #bac8f3;
+    background: #f8f9fc;
+}
 .mode-radio:checked + .mode-label {
     border-color: #1cc88a;
     background: #f0fff8;
-    color: #1cc88a;
-    box-shadow: 0 0 0 3px rgba(28,200,138,.15);
+    color: #159666;
+    box-shadow: 0 0.25rem 0.75rem rgba(28,200,138,.15);
 }
-/* ── Total dynamique ─────────────────────────────────────────────── */
-#total-box {
+.mode-icon {
+    font-size: 2.5rem !important;
+    margin-bottom: 0.5rem;
+}
+
+/* ── Section Headers ─────────────────────────────────────────────── */
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    margin-top: 2rem;
+}
+.section-title h4 {
+    margin: 0;
+    font-weight: 800;
+    color: #5a5c69;
+}
+.section-title .line {
+    flex-grow: 1;
+    height: 2px;
+    background: #eaecf4;
+}
+
+/* ── Encaisser Button ────────────────────────────────────────────── */
+#btn-encaisser {
+    border-radius: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    padding: 1rem;
+    text-transform: uppercase;
+    transition: all 0.3s;
+    background: linear-gradient(135deg, #1cc88a 0%, #13855c 100%);
+    border: none;
+    box-shadow: 0 0.5rem 1rem rgba(28,200,138,.3);
+}
+#btn-encaisser:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.75rem 1.5rem rgba(28,200,138,.4);
+}
+
+/* ── Document Grid ─────────────────────────────────────────────── */
+.doc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+.doc-card {
+    background: #fff;
+    border: 1px solid #eaecf4;
+    border-radius: 12px;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 0.15rem 0.5rem 0 rgba(58, 59, 69, 0.05);
+}
+.doc-card:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08);
+    border-color: #bac8f3;
+}
+.doc-card__header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+.doc-card__icon {
+    font-size: 1.8rem;
     background: #f8f9fc;
-    border: 2px solid #4e73df;
-    border-radius: 10px;
-    padding: 1rem 1.5rem;
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    color: #4e73df;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #eaecf4;
+}
+.doc-card__header-info {
+    flex-grow: 1;
+}
+.doc-card__title {
+    margin: 0;
+    font-weight: 700;
+    color: #5a5c69;
+    font-size: 1.05rem;
+}
+.doc-card__subtitle {
+    margin: 0;
+    font-size: 0.8rem;
+    color: #858796;
+}
+.doc-card__status {
+    font-size: 0.75rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+.status-ok { background: #e3fdfd; color: #1cc88a; border: 1px solid #b7f4db; }
+.status-missing { background: #feebeb; color: #e74a3b; border: 1px solid #fbd6d6; }
+
+.doc-card__body {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #eaecf4;
+    padding-top: 1.25rem;
+}
+.doc-preview-wrapper {
+    width: 100%;
+    margin-bottom: 1rem;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #eaecf4;
+    background: #f8f9fc;
+}
+.doc-preview-img {
+    width: 100%;
+    height: 180px;
+    object-fit: contain;
+    background: #eaecf4;
+}
+.doc-preview-pdf {
+    width: 100%;
+    height: 180px;
+    border: none;
+}
+.open-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 0.6rem;
+    background: #f8f9fc;
+    color: #4e73df;
+    border: 1px solid #eaecf4;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+.open-btn:hover {
+    background: #4e73df;
+    color: #fff;
+    border-color: #4e73df;
+    text-decoration: none;
+}
+.doc-missing {
+    text-align: center;
+    color: #858796;
+    font-size: 0.95rem;
+    padding: 2rem 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+}
+.doc-missing__icon {
+    font-size: 2.5rem;
+    opacity: 0.5;
 }
 </style>
 {% endblock %}
@@ -57,27 +340,30 @@
 
 {# ── Card infos citoyen ────────────────────────────────────────────── #}
 <div class="card shadow mb-4 border-left-primary">
-    <div class="card-body py-3">
-        <div class="row align-items-center">
+    <div class="card-body">
+        
+        {# ── Infos Personnelles ── #}
+        <div class="row align-items-center pb-4 mb-4 border-bottom">
             <div class="col-auto">
-                <i class="fas fa-user-circle fa-3x text-primary"></i>
+                <i class="fas fa-user-circle fa-4x text-gray-300"></i>
             </div>
             <div class="col">
+                <h5 class="font-weight-bold text-gray-800 mb-3">Informations Personnelles</h5>
                 <div class="row">
                     <div class="col-md-4">
                         <div class="text-xs text-muted text-uppercase mb-1">CIN</div>
-                        <div class="font-weight-bold text-gray-800">{{ citoyen.cin }}</div>
+                        <div class="h6 font-weight-bold text-gray-800">{{ citoyen.cin }}</div>
                     </div>
                     <div class="col-md-4">
-                        <div class="text-xs text-muted text-uppercase mb-1">Identifiant</div>
-                        <div class="font-weight-bold text-gray-800">{{ citoyen.userIdentifier }}</div>
+                        <div class="text-xs text-muted text-uppercase mb-1">Identifiant / Email</div>
+                        <div class="h6 font-weight-bold text-gray-800">{{ citoyen.userIdentifier }}</div>
                     </div>
                     <div class="col-md-4">
                         <div class="text-xs text-muted text-uppercase mb-1">Rôle(s)</div>
-                        <div class="small">
+                        <div class="small mt-1">
                             {% for role in citoyen.roles %}
                                 {% if role != 'ROLE_USER' %}
-                                    <span class="badge badge-light border">{{ role|replace({'ROLE_': ''}) }}</span>
+                                    <span class="badge badge-primary badge-pill px-3 py-2 shadow-sm">{{ role|replace({'ROLE_': ''}) }}</span>
                                 {% endif %}
                             {% endfor %}
                         </div>
@@ -85,12 +371,113 @@
                 </div>
             </div>
         </div>
+
+        <h5 class="font-weight-bold text-gray-800 mb-4">
+            <i class="fas fa-file-alt text-primary mr-2"></i>Documents justificatifs
+        </h5>
+
+        {# Document grid #}
+        <div class="doc-grid">
+
+            {# ── National ID ── #}
+            <div class="doc-card">
+                <div class="doc-card__header">
+                    <div class="doc-card__icon"><i class="fas fa-id-card"></i></div>
+                    <div class="doc-card__header-info">
+                        <p class="doc-card__title">Carte d'Identité (CIN)</p>
+                        <p class="doc-card__subtitle">Document national</p>
+                    </div>
+                    {% if citoyen.idDocumentPath %}
+                        <span class="doc-card__status status-ok"><i class="fas fa-check-circle"></i> Fourni</span>
+                    {% else %}
+                        <span class="doc-card__status status-missing"><i class="fas fa-exclamation-circle"></i> Manquant</span>
+                    {% endif %}
+                </div>
+                <div class="doc-card__body">
+                    {% if citoyen.idDocumentPath %}
+                        {% set idExt = citoyen.idDocumentPath|split('.')|last|lower %}
+                        <div class="doc-preview-wrapper">
+                            {% if idExt in ['jpg','jpeg','png','webp'] %}
+                                <img class="doc-preview-img"
+                                     src="{{ asset(citoyen.idDocumentPath) }}"
+                                     alt="CIN de {{ citoyen.cin }}">
+                            {% else %}
+                                <iframe class="doc-preview-pdf"
+                                        src="{{ asset(citoyen.idDocumentPath) }}"
+                                        title="CIN PDF">
+                                </iframe>
+                            {% endif %}
+                        </div>
+                        <a href="{{ asset(citoyen.idDocumentPath) }}"
+                           target="_blank"
+                           class="open-btn">
+                            <i class="fas fa-external-link-alt mr-2"></i>Ouvrir le document
+                        </a>
+                    {% else %}
+                        <div class="doc-missing">
+                            <span class="doc-missing__icon"><i class="fas fa-file-excel"></i></span>
+                            Aucune pièce d'identité importée.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            {# ── Passport ── #}
+            <div class="doc-card">
+                <div class="doc-card__header">
+                    <div class="doc-card__icon"><i class="fas fa-passport"></i></div>
+                    <div class="doc-card__header-info">
+                        <p class="doc-card__title">Passeport</p>
+                        <p class="doc-card__subtitle">Document de voyage</p>
+                    </div>
+                    {% if citoyen.passportPath %}
+                        <span class="doc-card__status status-ok"><i class="fas fa-check-circle"></i> Fourni</span>
+                    {% else %}
+                        <span class="doc-card__status status-missing"><i class="fas fa-exclamation-circle"></i> Manquant</span>
+                    {% endif %}
+                </div>
+                <div class="doc-card__body">
+                    {% if citoyen.passportPath %}
+                        {% set passExt = citoyen.passportPath|split('.')|last|lower %}
+                        <div class="doc-preview-wrapper">
+                            {% if passExt in ['jpg','jpeg','png','webp'] %}
+                                <img class="doc-preview-img"
+                                     src="{{ asset(citoyen.passportPath) }}"
+                                     alt="Passeport de {{ citoyen.cin }}">
+                            {% else %}
+                                <iframe class="doc-preview-pdf"
+                                        src="{{ asset(citoyen.passportPath) }}"
+                                        title="Passeport PDF">
+                                </iframe>
+                            {% endif %}
+                        </div>
+                        <a href="{{ asset(citoyen.passportPath) }}"
+                           target="_blank"
+                           class="open-btn">
+                            <i class="fas fa-external-link-alt mr-2"></i>Ouvrir le document
+                        </a>
+                    {% else %}
+                        <div class="doc-missing">
+                            <span class="doc-missing__icon"><i class="fas fa-file-excel"></i></span>
+                            Aucun passeport importé.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+        </div>
     </div>
 </div>
 
 {# ════════════════════════════════════════════════════════════════════
    FORMULAIRE D'ENCAISSEMENT
 ════════════════════════════════════════════════════════════════════ #}
+
+<div class="section-title">
+    <h4><i class="fas fa-cash-register text-primary mr-2"></i> Formulaire d'Encaissement</h4>
+    <div class="line"></div>
+</div>
+
 <form action="{{ path('kbadha_payer') }}" method="POST" id="form-encaissement">
     <input type="hidden" name="citoyen_id" value="{{ citoyen.id }}">
 
@@ -100,48 +487,60 @@
         <div class="col-lg-8">
 
             {# ── Section Taxes dues ─────────────────────────────── #}
-            <div class="card shadow mb-4">
-                <div class="card-header py-3 d-flex align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-file-invoice-dollar mr-2"></i>Taxes dues
+            <div class="card shadow-sm border-0 mb-4" style="border-radius: 12px; overflow: hidden;">
+                <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold" style="color: #4e73df; font-size: 1.1rem;">
+                        <span class="badge badge-primary badge-pill mr-2 p-2"><i class="fas fa-file-invoice-dollar mt-1"></i></span>
+                        Taxes dues
                     </h6>
-                    <span class="badge badge-primary">{{ taxesDues|length }} taxe(s)</span>
+                    <span class="badge badge-primary px-3 py-2 badge-pill shadow-sm">{{ taxesDues|length }} taxe(s)</span>
                 </div>
                 <div class="card-body p-0">
                     {% if taxesDues is empty %}
-                        <div class="text-center py-4 text-muted">
-                            <i class="fas fa-check-circle fa-2x text-success mb-2 d-block"></i>
-                            Aucune taxe impayée — ce citoyen est en règle.
+                        <div class="text-center py-5 text-muted">
+                            <i class="fas fa-check-circle fa-3x text-success mb-3 d-block opacity-50"></i>
+                            <h6 class="font-weight-bold">Aucune taxe impayée</h6>
+                            <p class="small">Ce citoyen est parfaitement en règle.</p>
                         </div>
                     {% else %}
                         <div class="table-responsive">
-                            <table class="table table-hover mb-0">
-                                <thead class="thead-light">
+                            <table class="table table-custom table-hover mb-0">
+                                <thead>
                                     <tr>
-                                        <th width="40"><input type="checkbox" id="check-all-taxes" title="Tout cocher"></th>
+                                        <th width="60" class="text-center">
+                                            <label class="custom-checkbox-container" title="Tout cocher">
+                                                <input type="checkbox" id="check-all-taxes">
+                                                <span class="checkmark"></span>
+                                            </label>
+                                        </th>
                                         <th>Nom de la taxe</th>
                                         <th>Description</th>
-                                        <th class="text-right">Montant</th>
+                                        <th class="text-right pr-4">Montant</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for taxe in taxesDues %}
                                         <tr class="item-row" data-montant="{{ taxe.montant }}">
-                                            <td>
-                                                <input type="checkbox"
-                                                       class="item-check"
-                                                       name="taxe_ids[]"
-                                                       value="{{ taxe.id }}"
-                                                       id="taxe_{{ taxe.id }}">
+                                            <td class="text-center">
+                                                <label class="custom-checkbox-container">
+                                                    <input type="checkbox"
+                                                           class="item-check"
+                                                           name="taxe_ids[]"
+                                                           value="{{ taxe.id }}"
+                                                           id="taxe_{{ taxe.id }}">
+                                                    <span class="checkmark"></span>
+                                                </label>
                                             </td>
                                             <td>
-                                                <label for="taxe_{{ taxe.id }}" class="mb-0 font-weight-bold cursor-pointer">
+                                                <label for="taxe_{{ taxe.id }}" class="mb-0 font-weight-bold text-dark cursor-pointer">
                                                     {{ taxe.nomTaxe }}
                                                 </label>
                                             </td>
                                             <td class="text-muted small">{{ taxe.description|slice(0,60) }}…</td>
-                                            <td class="text-right">
-                                                <span class="font-weight-bold text-primary">{{ taxe.montant }} DT</span>
+                                            <td class="text-right pr-4">
+                                                <span class="badge badge-light border border-primary text-primary px-3 py-2 shadow-sm" style="font-size:0.9rem;">
+                                                    {{ taxe.montant }} DT
+                                                </span>
                                             </td>
                                         </tr>
                                     {% endfor %}
@@ -153,30 +552,37 @@
             </div>
 
             {# ── Section Amendes impayées ───────────────────────── #}
-            <div class="card shadow mb-4">
-                <div class="card-header py-3 d-flex align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-danger">
-                        <i class="fas fa-exclamation-triangle mr-2"></i>Amendes impayées
+            <div class="card shadow-sm border-0 mb-4" style="border-radius: 12px; overflow: hidden;">
+                <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold" style="color: #e74a3b; font-size: 1.1rem;">
+                        <span class="badge badge-danger badge-pill mr-2 p-2"><i class="fas fa-exclamation-triangle mt-1"></i></span>
+                        Amendes impayées
                     </h6>
-                    <span class="badge badge-danger">{{ infractions|length }} amende(s)</span>
+                    <span class="badge badge-danger px-3 py-2 badge-pill shadow-sm">{{ infractions|length }} amende(s)</span>
                 </div>
                 <div class="card-body p-0">
                     {% if infractions is empty %}
-                        <div class="text-center py-4 text-muted">
-                            <i class="fas fa-check-circle fa-2x text-success mb-2 d-block"></i>
-                            Aucune amende en attente.
+                        <div class="text-center py-5 text-muted">
+                            <i class="fas fa-shield-alt fa-3x text-success mb-3 d-block opacity-50"></i>
+                            <h6 class="font-weight-bold">Aucune amende en attente</h6>
+                            <p class="small">Le dossier d'infractions est vierge.</p>
                         </div>
                     {% else %}
                         <div class="table-responsive">
-                            <table class="table table-hover mb-0">
-                                <thead class="thead-light">
+                            <table class="table table-custom table-hover mb-0">
+                                <thead>
                                     <tr>
-                                        <th width="40"><input type="checkbox" id="check-all-infractions" title="Tout cocher"></th>
+                                        <th width="60" class="text-center">
+                                            <label class="custom-checkbox-container" title="Tout cocher">
+                                                <input type="checkbox" id="check-all-infractions">
+                                                <span class="checkmark"></span>
+                                            </label>
+                                        </th>
                                         <th>Type</th>
                                         <th>Lieu</th>
                                         <th>Plaque</th>
                                         <th>Date</th>
-                                        <th class="text-right">Montant</th>
+                                        <th class="text-right pr-4">Montant</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -187,27 +593,33 @@
                                     } %}
                                     {% for infraction in infractions %}
                                         <tr class="item-row" data-montant="{{ infraction.montantAmende }}">
-                                            <td>
-                                                <input type="checkbox"
-                                                       class="item-check"
-                                                       name="infraction_ids[]"
-                                                       value="{{ infraction.id }}"
-                                                       id="infraction_{{ infraction.id }}">
+                                            <td class="text-center">
+                                                <label class="custom-checkbox-container">
+                                                    <input type="checkbox"
+                                                           class="item-check"
+                                                           name="infraction_ids[]"
+                                                           value="{{ infraction.id }}"
+                                                           id="infraction_{{ infraction.id }}">
+                                                    <span class="checkmark"></span>
+                                                </label>
                                             </td>
                                             <td>
-                                                <label for="infraction_{{ infraction.id }}" class="mb-0 font-weight-bold cursor-pointer">
+                                                <label for="infraction_{{ infraction.id }}" class="mb-0 font-weight-bold text-dark cursor-pointer">
                                                     {{ labelsInfra[infraction.typeInfraction] ?? infraction.typeInfraction }}
                                                 </label>
                                             </td>
                                             <td class="text-muted small">{{ infraction.lieu|slice(0,25) }}</td>
                                             <td>
-                                                <span class="badge badge-dark">{{ infraction.plaqueImmat }}</span>
+                                                <span class="badge badge-dark px-2 py-1 shadow-sm">{{ infraction.plaqueImmat }}</span>
                                             </td>
                                             <td class="text-muted small">
+                                                <i class="far fa-calendar-alt mr-1"></i>
                                                 {{ infraction.dateInfraction ? infraction.dateInfraction|date('d/m/Y') : '—' }}
                                             </td>
-                                            <td class="text-right">
-                                                <span class="font-weight-bold text-danger">{{ infraction.montantAmende }} DT</span>
+                                            <td class="text-right pr-4">
+                                                <span class="badge badge-light border border-danger text-danger px-3 py-2 shadow-sm" style="font-size:0.9rem;">
+                                                    {{ infraction.montantAmende }} DT
+                                                </span>
                                             </td>
                                         </tr>
                                     {% endfor %}
@@ -226,34 +638,36 @@
 
             {# Total dynamique #}
             <div id="total-box" class="mb-4">
-                <div class="text-xs font-weight-bold text-primary text-uppercase mb-2">
-                    <i class="fas fa-calculator mr-1"></i>Total à encaisser
+                <div class="text-xs font-weight-bold text-primary text-uppercase mb-2 d-flex align-items-center">
+                    <i class="fas fa-calculator mr-2 fa-lg"></i>Total à encaisser
                 </div>
-                <div class="h2 font-weight-bold text-primary mb-0" id="total-display">0,000 DT</div>
-                <div class="small text-muted mt-1" id="selected-count">Aucun élément sélectionné</div>
+                <div class="font-weight-bold text-primary mb-0 mt-2" id="total-display">0,000 DT</div>
+                <div class="small text-muted mt-2" id="selected-count">
+                    <i class="fas fa-info-circle mr-1"></i>Aucun élément sélectionné
+                </div>
             </div>
 
             {# Mode de paiement #}
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
+            <div class="card shadow-sm border-0 mb-4" style="border-radius: 12px;">
+                <div class="card-header bg-white py-3 border-bottom">
                     <h6 class="m-0 font-weight-bold text-gray-700">
-                        <i class="fas fa-hand-holding-usd mr-2"></i>Mode de paiement
+                        <i class="fas fa-hand-holding-usd mr-2 text-success"></i>Mode de paiement
                     </h6>
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-6">
+                        <div class="col-6 pr-2">
                             <input type="radio" name="mode" value="especes"
                                    id="mode_especes" class="mode-radio" checked>
-                            <label for="mode_especes" class="mode-label w-100">
+                            <label for="mode_especes" class="mode-label w-100 text-center">
                                 <span class="mode-icon">💵</span>
                                 Espèces
                             </label>
                         </div>
-                        <div class="col-6">
+                        <div class="col-6 pl-2">
                             <input type="radio" name="mode" value="cheque"
                                    id="mode_cheque" class="mode-radio">
-                            <label for="mode_cheque" class="mode-label w-100">
+                            <label for="mode_cheque" class="mode-label w-100 text-center">
                                 <span class="mode-icon">📄</span>
                                 Chèque
                             </label>
@@ -263,15 +677,15 @@
             </div>
 
             {# Bouton d'encaissement #}
-            <button type="submit" class="btn btn-success btn-lg btn-block shadow" id="btn-encaisser">
-                <i class="fas fa-check-circle mr-2"></i>
-                Encaisser et imprimer le reçu
+            <button type="submit" class="btn btn-success btn-block text-white" id="btn-encaisser">
+                <i class="fas fa-check-circle mr-2 fa-lg"></i>
+                Encaisser & Imprimer
             </button>
 
-            <div class="text-center mt-2">
-                <small class="text-muted">
-                    <i class="fas fa-lock mr-1"></i>
-                    Transaction sécurisée — Agent : <strong>{{ app.user.userIdentifier }}</strong>
+            <div class="text-center mt-3">
+                <small class="text-muted" style="font-size: 0.8rem;">
+                    <i class="fas fa-lock mr-1 text-success"></i>
+                    Transaction sécurisée<br>Agent en charge : <strong class="text-dark">{{ app.user.userIdentifier }}</strong>
                 </small>
             </div>
 

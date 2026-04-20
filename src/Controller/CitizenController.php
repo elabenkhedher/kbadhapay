@@ -4,7 +4,9 @@ namespace App\Controller;
 
 use App\Entity\Paiement;
 use App\Entity\Reclamation;
+use App\Form\DocumentUploadType;
 use App\Form\ReclamationCitoyenType;
+use App\Service\FileUploaderService;
 use App\Repository\InfractionRepository;
 use App\Repository\PaiementRepository;
 use App\Repository\ReclamationRepository;
@@ -324,5 +326,56 @@ class CitizenController extends AbstractController
         }
 
         return $this->json(['success' => false], 400);
+    }
+
+    #[Route('/documents', name: 'app_profile_documents', methods: ['GET', 'POST'])]
+    public function uploadDocuments(
+        Request $request,
+        FileUploaderService $uploader,
+        EntityManagerInterface $em,
+    ): Response {
+        /** @var \App\Entity\User $user */
+        $user = $this->getUser();
+    
+        $form = $this->createForm(DocumentUploadType::class, $user);
+        $form->handleRequest($request);
+    
+        if ($form->isSubmitted() && $form->isValid()) {
+    
+            // --- Handle National ID ---
+            $idFile = $form->get('idDocumentPath')->getData();
+            if ($idFile) {
+                $uploader->remove(
+                    $user->getIdDocumentPath(),
+                    $this->getParameter('kernel.project_dir') . '/public'
+                );
+    
+                $filename = $uploader->uploadIdDocument($idFile);
+                $user->setIdDocumentPath('uploads/id-documents/' . $filename);
+            }
+    
+            // --- Handle Passport ---
+            $passportFile = $form->get('passportPath')->getData();
+            if ($passportFile) {
+                $uploader->remove(
+                    $user->getPassportPath(),
+                    $this->getParameter('kernel.project_dir') . '/public'
+                );
+    
+                $filename = $uploader->uploadPassport($passportFile);
+                $user->setPassportPath('uploads/passports/' . $filename);
+            }
+    
+            $em->flush();
+    
+            $this->addFlash('success', 'Your documents have been uploaded successfully.');
+    
+            return $this->redirectToRoute('citizen_dashboard');
+        }
+    
+        return $this->render('citizen/document.html.twig', [
+            'form' => $form,
+            'user' => $user,
+        ]);
     }
 }

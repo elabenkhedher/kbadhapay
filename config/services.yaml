@@ -29,5 +29,11 @@ services:
             $twilioToken: '%env(TWILIO_AUTH_TOKEN)%'
             $twilioFrom:  '%env(TWILIO_PHONE_NUMBER)%'
 
+    App\Service\FileUploaderService:
+        arguments:
+            $idUploadsDirectory:       '%kernel.project_dir%/public/uploads/id-documents'
+            $passportUploadsDirectory: '%kernel.project_dir%/public/uploads/passports'
+ 
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
