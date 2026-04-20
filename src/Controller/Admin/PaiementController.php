@@ -4,14 +4,11 @@ namespace App\Controller\Admin;
 
 use App\Entity\Paiement;
 use App\Repository\PaiementRepository;
-<<<<<<< HEAD
-=======
 use App\Repository\InfractionRepository;
->>>>>>> 1db43f20671c9056a1768bbbcec7dc29b3b3cbff
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Response;  
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -30,20 +27,11 @@ class PaiementController extends AbstractController
 
     // ── Paiements en attente uniquement ───────────────────────────
     #[Route('/en-attente', name: 'en_attente', methods: ['GET'])]
-<<<<<<< HEAD
-    public function enAttente(PaiementRepository $repo): Response
-    {
-        return $this->render('admin/paiement/en_attente.html.twig', [
-            'paiements' => $repo->findBy(
-                ['statut' => 'en_attente'],
-                ['date_soumission' => 'ASC']  // plus anciens en premier
-=======
     public function enAttente(InfractionRepository $repo): Response
     {
         return $this->render('admin/paiement/en_attente.html.twig', [
             'paiements' => $repo->findBy(
-                ['statut' => 'a_payer']            
->>>>>>> 1db43f20671c9056a1768bbbcec7dc29b3b3cbff
+                ['statut' => 'a_payer']           
             ),
         ]);
     }

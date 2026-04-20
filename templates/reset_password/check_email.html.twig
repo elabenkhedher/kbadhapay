@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>kbadhapay – Email envoyé</title>
+
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/startbootstrap-sb-admin-2/4.1.4/css/sb-admin-2.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+
+    <style>
+        .brand-title { font-size: 2rem; font-weight: 800; color: #4e73df; letter-spacing: -0.5px; }
+        .brand-subtitle { font-size: 0.85rem; color: #6c757d; letter-spacing: 0.5px; text-transform: uppercase; font-weight: 600; }
+        .brand-icon { font-size: 2.5rem; color: #4e73df; margin-bottom: 0.25rem; }
+           </style>
+</head>
+
+<body class="bg-gradient-primary">
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-xl-10 col-lg-12 col-md-9">
+                <div class="card o-hidden border-0 shadow-lg my-5">
+                    <div class="card-body p-0">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="p-5">
+                                    <div class="text-center mb-4">
+                                        <div class="brand-icon text-success"><i class="fas fa-paper-plane"></i></div>
+                                        <h1 class="brand-title">kbadhapay</h1>
+                                        <p class="brand-subtitle">Email de vérification</p>
+                                    </div>
+
+                                    <div class="text-center">
+                                        <h1 class="h4 text-gray-900 mb-2">Email envoyé !</h1>
+                                        <p class="mb-4 text-justify">
+                                            Si un compte correspondant à votre adresse e-mail existe, un e-mail vient de vous être envoyé. 
+                                            Il contient un lien que vous pouvez utiliser pour réinitialiser votre mot de passe.
+                                        </p>
+                                        <div class="alert alert-info small">
+                                            Ce lien expirera dans <strong>{{ resetToken.expirationMessageKey|trans(resetToken.expirationMessageData, 'ResetPasswordBundle') }}</strong>.
+                                        </div>
+                                        <p class="small text-muted mb-4">
+                                            Si vous ne recevez pas d'e-mail, veuillez vérifier votre dossier de courriers indésirables (spams) ou 
+                                            <a href="{{ path('app_forgot_password_request') }}">réessayer</a>.
+                                        </p>
+                                    </div>
+
+                                    <hr>
+                                    <div class="text-center">
+                                        <a class="btn btn-secondary btn-user btn-block" href="{{ path('app_login') }}">
+                                            Retour à la connexion
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

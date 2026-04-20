@@ -51,6 +51,14 @@
                         {{ form_errors(form.telephone) }}
                     </div>
 
+                    {# Email #}
+                    <div class="form-group">
+                        {{ form_label(form.email, null, {label_attr: {class: 'font-weight-bold'}}) }}
+                        {{ form_widget(form.email, {attr: {class: 'form-control', placeholder: 'citoyen@gmail.com'}}) }}
+                        <small class="text-muted">L'email sera utilisé pour la réinitialisation de mot de passe.</small>
+                        {{ form_errors(form.email) }}
+                    </div>
+
                     {# Mot de passe optionnel en édition #}
                     <div class="form-group">
                         {{ form_label(form.plainPassword, null, {label_attr: {class: 'font-weight-bold'}}) }}

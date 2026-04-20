@@ -32,6 +32,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?string $password = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $email = null;
+
     #[ORM\Column(nullable: true)]
     private ?array $preferences_notification = null;
 
@@ -109,6 +112,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;
+    }
+
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(?string $email): static
+    {
+        $this->email = $email;
+
+        return $this;
     }
 
     public function getPreferencesNotification(): ?array

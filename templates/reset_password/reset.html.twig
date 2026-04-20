@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>kbadhapay – Nouveau mot de passe</title>
+
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/startbootstrap-sb-admin-2/4.1.4/css/sb-admin-2.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+
+    <style>
+        .brand-title { font-size: 2rem; font-weight: 800; color: #4e73df; letter-spacing: -0.5px; }
+        .brand-subtitle { font-size: 0.85rem; color: #6c757d; letter-spacing: 0.5px; text-transform: uppercase; font-weight: 600; }
+        .brand-icon { font-size: 2.5rem; color: #4e73df; margin-bottom: 0.25rem; }
+    </style>
+</head>
+
+<body class="bg-gradient-primary">
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-xl-10 col-lg-12 col-md-9">
+                <div class="card o-hidden border-0 shadow-lg my-5">
+                    <div class="card-body p-0">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="p-5">
+                                    <div class="text-center mb-4">
+                                        <div class="brand-icon"><i class="fas fa-user-shield"></i></div>
+                                        <h1 class="brand-title">kbadhapay</h1>
+                                        <p class="brand-subtitle">Sécurité du compte</p>
+                                    </div>
+
+                                    <div class="text-center">
+                                        <h1 class="h4 text-gray-900 mb-4">Nouveau mot de passe</h1>
+                                    </div>
+
+                                    {{ form_start(resetForm, {'attr': {'class': 'user'}}) }}
+                                        <div class="form-group">
+                                            {{ form_label(resetForm.plainPassword.first, 'Nouveau mot de passe', {'label_attr': {'class': 'small font-weight-bold text-gray-700'}}) }}
+                                            {{ form_widget(resetForm.plainPassword.first, {
+                                                'attr': {
+                                                    'class': 'form-control form-control-user',
+                                                    'placeholder': 'Entrez le nouveau mot de passe...'
+                                                }
+                                            }) }}
+                                            <div class="text-danger small mt-1">
+                                                {{ form_errors(resetForm.plainPassword.first) }}
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            {{ form_label(resetForm.plainPassword.second, 'Confirmez le mot de passe', {'label_attr': {'class': 'small font-weight-bold text-gray-700'}}) }}
+                                            {{ form_widget(resetForm.plainPassword.second, {
+                                                'attr': {
+                                                    'class': 'form-control form-control-user',
+                                                    'placeholder': 'Répétez le mot de passe...'
+                                                }
+                                            }) }}
+                                            <div class="text-danger small mt-1">
+                                                {{ form_errors(resetForm.plainPassword.second) }}
+                                            </div>
+                                        </div>
+                                        <button type="submit" class="btn btn-success btn-user btn-block">
+                                            Changer le mot de passe
+                                        </button>
+                                    {{ form_end(resetForm) }}
+
+                                    <hr>
+                                    <div class="text-center">
+                                        <a class="small" href="{{ path('app_login') }}">Retour à la connexion</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -60,6 +60,17 @@ class UserType extends AbstractType
                 ],
             ])
 
+            // ── Adresse Email ─────────────────────────────────────
+            ->add('email', EmailType::class, [
+                'label' => 'Adresse Email',
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-control',
+                    'placeholder' => 'Ex : citoyen@gmail.com',
+                ],
+                'label_attr' => ['class' => 'font-weight-bold'],
+            ])
+
             // ── Rôles ────────────────────────────────────────────
             ->add('roles', ChoiceType::class, [
                 'label' => 'Rôle',
