@@ -199,7 +199,7 @@ class CitizenController extends AbstractController
         $paiement
             ->setUser($citoyen)
             ->setInfraction($infraction)
-            ->setMontant($infraction->getMontantAmende())
+            ->setMontant($infraction->getMontantTotal())
             ->setStatut('paye')
             ->setModePaiement('en_ligne')
             ->setReference('AME-' . strtoupper(uniqid()))
@@ -277,6 +277,65 @@ class CitizenController extends AbstractController
             'form' => $form,
         ]);
     }
+
+    #[Route('/reclamation/{id}/edit', name: 'modifier_reclamation', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
+    public function modifierReclamation(int $id, Request $request, ReclamationRepository $reclRepo, EntityManagerInterface $em): Response
+
+    {
+        $reclamation = $reclRepo->find($id);
+
+        if (!$reclamation || $reclamation->getUser() !== $this->getUser()) {
+            $this->addFlash('danger', 'Réclamation introuvable ou non autorisée.');
+            return $this->redirectToRoute('citizen_reclamations');
+        }
+
+        if ($reclamation->getStatut() !== 'en_cours') {
+            $this->addFlash('warning', 'Vous ne pouvez plus modifier cette réclamation car elle est déjà traitée.');
+            return $this->redirectToRoute('citizen_reclamations');
+        }
+
+        $form = $this->createForm(ReclamationCitoyenType::class, $reclamation);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->flush();
+            $this->addFlash('success', 'Votre réclamation a été mise à jour.');
+            return $this->redirectToRoute('citizen_reclamations');
+        }
+
+        return $this->render('citizen/modifier_reclamation.html.twig', [
+            'form' => $form,
+            'reclamation' => $reclamation,
+        ]);
+    }
+
+    #[Route('/reclamation/{id}/delete', name: 'supprimer_reclamation', methods: ['POST'], requirements: ['id' => '\d+'])]
+    public function supprimerReclamation(int $id, Request $request, ReclamationRepository $reclRepo, EntityManagerInterface $em): Response
+
+    {
+        $reclamation = $reclRepo->find($id);
+
+        if (!$reclamation || $reclamation->getUser() !== $this->getUser()) {
+            $this->addFlash('danger', 'Réclamation introuvable ou non autorisée.');
+            return $this->redirectToRoute('citizen_reclamations');
+        }
+
+        if ($reclamation->getStatut() !== 'en_cours') {
+            $this->addFlash('warning', 'Vous ne pouvez pas supprimer une réclamation déjà traitée.');
+            return $this->redirectToRoute('citizen_reclamations');
+        }
+
+        if ($this->isCsrfTokenValid('delete_reclamation_' . $id, $request->request->get('_token'))) {
+            $em->remove($reclamation);
+            $em->flush();
+            $this->addFlash('success', 'La réclamation a été supprimée.');
+        } else {
+            $this->addFlash('danger', 'Token de sécurité invalide.');
+        }
+
+        return $this->redirectToRoute('citizen_reclamations');
+    }
+
 
     // ─────────────────────────────────────────────────────────────────
     // 9. PRÉFÉRENCES DE NOTIFICATION

@@ -1,6 +1,12 @@
 {% extends 'base.html.twig' %}
 {% block title %}Mes Taxes — kbadhapay{% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{ asset('css/payment.css') }}" rel="stylesheet">
+{% endblock %}
+
+
 {% block body %}
 
 <div class="d-sm-flex align-items-center justify-content-between mb-3">
@@ -57,14 +63,14 @@
                                     {{ taxe.description ?? '—' }}
                                 </td>
                                 <td class="text-center">
-                                    <form action="{{ path('citizen_payer_taxe', {id: taxe.id}) }}"
-                                          method="POST"
-                                          onsubmit="return confirm('Confirmer le paiement de la taxe « {{ taxe.nomTaxe }} » pour un montant de {{ taxe.montant }} DT ?')">
-                                        <input type="hidden" name="_token" value="{{ csrf_token('payer_taxe_' ~ taxe.id) }}">
-                                        <button type="submit" class="btn btn-success btn-sm">
+                                        <button type="button" class="btn btn-success btn-sm" 
+                                                data-toggle="modal" 
+                                                data-target="#paymentModal"
+                                                data-id="{{ taxe.id }}"
+                                                data-type="taxe"
+                                                data-amount="{{ taxe.montant }}">
                                             <i class="fas fa-credit-card mr-1"></i>Payer en ligne
                                         </button>
-                                    </form>
                                 </td>
                             </tr>
                         {% endfor %}
@@ -75,4 +81,11 @@
     </div>
 </div>
 
+{% include 'fragments/_payment_modals.html.twig' %}
 {% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/payment.js') }}"></script>
+{% endblock %}
+

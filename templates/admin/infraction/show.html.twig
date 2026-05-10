@@ -61,14 +61,35 @@
                             </td>
                         </tr>
                         <tr>
-                            <th class="pl-4 text-gray-600"><i class="fas fa-money-bill-wave mr-2 text-muted"></i>Montant de l'amende</th>
+                            <th class="pl-4 text-gray-600"><i class="fas fa-money-bill-wave mr-2 text-muted"></i>Montant total</th>
                             <td class="pr-4">
-                                <span class="h5 font-weight-bold">{{ infraction.montantAmende|number_format(3, ',', ' ') }}</span>
-                                <span class="text-muted ml-1">DT</span>
+                                <span class="h5 font-weight-bold text-primary">{{ infraction.montantTotal|number_format(3, ',', ' ') }}</span>
+                                <span class="text-muted ml-1 font-weight-bold">DT</span>
+                                {% if infraction.penalite > 0 %}
+                                    <div class="small text-muted mt-1">
+                                        <span class="badge badge-light border">{{ infraction.montantAmende|number_format(3, ',', ' ') }} DT</span> (amende) 
+                                        + <span class="text-danger font-weight-bold">{{ infraction.penalite|number_format(3, ',', ' ') }} DT</span> (pénalité de retard)
+                                    </div>
+                                {% endif %}
                             </td>
                         </tr>
                         <tr>
-                            <th class="pl-4 text-gray-600"><i class="fas fa-calendar-alt mr-2 text-muted"></i>Date et heure</th>
+                            <th class="pl-4 text-gray-600"><i class="fas fa-calendar-check mr-2 text-muted"></i>Date d'échéance</th>
+                            <td class="pr-4">
+                                {% if infraction.dateEcheance %}
+                                    <span class="{% if infraction.penalite > 0 %}text-danger font-weight-bold{% endif %}">
+                                        {{ infraction.dateEcheance|date('d/m/Y') }}
+                                    </span>
+                                    {% if infraction.penalite > 0 %}
+                                        <span class="badge badge-danger ml-2">Dépassée</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-muted font-italic">Non définie</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="pl-4 text-gray-600"><i class="fas fa-calendar-alt mr-2 text-muted"></i>Date d'infraction</th>
                             <td class="pr-4">{{ infraction.dateInfraction ? infraction.dateInfraction|date('d/m/Y à H:i') : '—' }}</td>
                         </tr>
                         <tr>

@@ -183,12 +183,16 @@ class Infraction
 
         $now = new \DateTime();
         if ($now > $this->date_echeance) {
-            $diff = $now->diff($this->date_echeance)->days;
+            // Normalize dates to midnight to compare full calendar days
+            $today = (clone $now)->setTime(0, 0, 0);
+            $deadline = (clone $this->date_echeance)->setTime(0, 0, 0);
+            $diff = $today->diff($deadline)->days;
+            
             $montant = (float) $this->montant_amende;
             
-            if ($diff > 7) {
+            if ($diff >= 7) {
                 return $montant * 0.20; // 20% after 7 days
-            } elseif ($diff > 0) {
+            } elseif ($diff >= 1) {
                 return $montant * 0.10; // 10% after 1 day
             }
         }

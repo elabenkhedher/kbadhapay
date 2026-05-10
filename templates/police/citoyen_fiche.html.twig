@@ -1,0 +1,177 @@
+{% extends 'base.html.twig' %}
+{% block title %}Vérification Citoyen — {{ citoyen.cin }}{% endblock %}
+
+{% block body %}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-id-card mr-2 text-primary"></i>
+            Dossier de Vérification Conducteur
+        </h1>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{{ path('police_recherche_citoyen') }}" class="btn btn-outline-secondary btn-sm mr-2">
+            <i class="fas fa-search mr-1"></i>Nouvelle recherche
+        </a>
+        <a href="{{ path('police_nouvelle_infraction', {citoyen_id: citoyen.id}) }}" class="btn btn-danger btn-sm shadow-sm">
+            <i class="fas fa-plus-circle mr-1"></i>Ajouter une Infraction
+        </a>
+    </div>
+</div>
+
+{# ── Infos Citoyen ── #}
+<div class="card shadow mb-4 border-left-info">
+    <div class="card-body">
+        <div class="row align-items-center">
+            <div class="col-auto">
+                <i class="fas fa-user-circle fa-4x text-gray-300"></i>
+            </div>
+            <div class="col">
+                <h5 class="font-weight-bold text-gray-800 mb-1">Détails du Citoyen</h5>
+                <div class="row mt-3">
+                    <div class="col-md-3">
+                        <div class="text-xs text-muted text-uppercase mb-1">CIN</div>
+                        <div class="h6 font-weight-bold text-gray-800">{{ citoyen.cin }}</div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-xs text-muted text-uppercase mb-1">Téléphone</div>
+                        <div class="h6 font-weight-bold text-gray-800">{{ citoyen.telephone ?? '—' }}</div>
+                    </div>
+                    <div class="col-md-6 text-right">
+                        <div class="badge badge-info p-2">Statut : Compte Vérifié</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    {# ── Documents ── #}
+    <div class="col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 bg-white">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-file-alt mr-2"></i>Documents Justificatifs
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    {# CIN #}
+                    <div class="list-group-item d-flex align-items-center justify-content-between px-0">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-id-card fa-2x text-muted mr-3"></i>
+                            <div>
+                                <h6 class="mb-0 font-weight-bold">Carte d'Identité (CIN)</h6>
+                                <small class="text-muted">Document national d'identité</small>
+                            </div>
+                        </div>
+                        {% if citoyen.idDocumentPath %}
+                            <a href="{{ asset(citoyen.idDocumentPath) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-eye"></i> Voir
+                            </a>
+                        {% else %}
+                            <span class="badge badge-secondary">Non fourni</span>
+                        {% endif %}
+                    </div>
+                    {# PASSPORT #}
+                    <div class="list-group-item d-flex align-items-center justify-content-between px-0">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-passport fa-2x text-muted mr-3"></i>
+                            <div>
+                                <h6 class="mb-0 font-weight-bold">Passeport</h6>
+                                <small class="text-muted">Document de voyage</small>
+                            </div>
+                        </div>
+                        {% if citoyen.passportPath %}
+                            <a href="{{ asset(citoyen.passportPath) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-eye"></i> Voir
+                            </a>
+                        {% else %}
+                            <span class="badge badge-secondary">Non fourni</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# ── Situation Financière (Unpaid only) ── #}
+    <div class="col-lg-6">
+        {# Taxes #}
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 bg-warning text-white">
+                <h6 class="m-0 font-weight-bold">
+                    <i class="fas fa-file-invoice-dollar mr-2"></i>Taxes Impayées
+                </h6>
+            </div>
+            <div class="card-body p-0">
+                {% if taxesDues is empty %}
+                    <div class="p-4 text-center text-muted">
+                        <i class="fas fa-check-circle text-success mb-2"></i> Aucune taxe en retard.
+                    </div>
+                {% else %}
+                    <table class="table table-sm table-hover mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="pl-3">Nom</th>
+                                <th class="text-right pr-3">Montant</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for taxe in taxesDues %}
+                                <tr>
+                                    <td class="pl-3 font-weight-bold text-dark">{{ taxe.nomTaxe }}</td>
+                                    <td class="text-right pr-3 text-primary">{{ taxe.montant|number_format(3, ',', ' ') }} DT</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+            </div>
+        </div>
+
+        {# Infractions #}
+        <div class="card shadow mb-4 border-bottom-danger">
+            <div class="card-header py-3 bg-danger text-white">
+                <h6 class="m-0 font-weight-bold">
+                    <i class="fas fa-exclamation-circle mr-2"></i>Infractions en Attente
+                </h6>
+            </div>
+            <div class="card-body p-0">
+                {% if infractions is empty %}
+                    <div class="p-4 text-center text-muted">
+                        <i class="fas fa-shield-alt text-success mb-2"></i> Dossier d'infractions vide.
+                    </div>
+                {% else %}
+                    <table class="table table-sm table-hover mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="pl-3">Type</th>
+                                <th class="text-right pr-3">Amende</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for i in infractions %}
+                                <tr>
+                                    <td class="pl-3 font-weight-bold text-dark">{{ i.typeInfraction }}</td>
+                                    <td class="text-right pr-3 text-danger">{{ i.montantAmende|number_format(3, ',', ' ') }} DT</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="alert alert-light border shadow-sm text-center py-4 mt-2">
+    <h5 class="font-weight-bold mb-3">Besoin de verbaliser ce conducteur ?</h5>
+    <a href="{{ path('police_nouvelle_infraction', {citoyen_id: citoyen.id}) }}" class="btn btn-danger btn-lg px-5">
+        <i class="fas fa-plus-circle mr-2"></i>AJOUTER UNE INFRACTION
+    </a>
+</div>
+
+{% endblock %}

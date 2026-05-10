@@ -1,0 +1,87 @@
+{% extends 'base.html.twig' %}
+{% block title %}Création Compte Citoyen{% endblock %}
+
+{% block body %}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-3">
+    <h1 class="h3 mb-0 text-gray-800">
+        <i class="fas fa-user-plus mr-2 text-primary"></i>Créer un Compte Citoyen
+    </h1>
+    <a href="{{ path('kbadha_citoyen_recherche') }}" class="btn btn-secondary btn-sm">
+        <i class="fas fa-arrow-left mr-1"></i>Retour à la recherche
+    </a>
+</div>
+
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb bg-white shadow-sm small">
+        <li class="breadcrumb-item"><a href="{{ path('kbadha_dashboard') }}"><i class="fas fa-home mr-1"></i>Accueil</a></li>
+        <li class="breadcrumb-item"><a href="{{ path('kbadha_citoyen_recherche') }}">Recherche</a></li>
+        <li class="breadcrumb-item active">Nouveau Citoyen</li>
+    </ol>
+</nav>
+
+<div class="row justify-content-center">
+    <div class="col-xl-7 col-lg-9">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-id-card mr-2"></i>Informations du citoyen
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info small mb-4">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    Ce formulaire permet de créer un compte <strong>Citoyen</strong>. 
+                    Le numéro CIN servira d'identifiant pour les futurs paiements.
+                </div>
+
+                {{ form_start(form, {attr: {novalidate: 'novalidate'}}) }}
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form_label(form.cin, 'Numéro CIN', {label_attr: {class: 'font-weight-bold'}}) }}
+                                {{ form_widget(form.cin) }}
+                                {{ form_errors(form.cin) }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form_label(form.telephone, 'Téléphone', {label_attr: {class: 'font-weight-bold'}}) }}
+                                {{ form_widget(form.telephone) }}
+                                {{ form_errors(form.telephone) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        {{ form_label(form.email, 'Adresse Email (Optionnel)', {label_attr: {class: 'font-weight-bold'}}) }}
+                        {{ form_widget(form.email) }}
+                        {{ form_errors(form.email) }}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form_label(form.plainPassword, 'Mot de passe provisoire', {label_attr: {class: 'font-weight-bold'}}) }}
+                        {{ form_widget(form.plainPassword) }}
+                        <small class="text-muted">Communiquez ce mot de passe au citoyen. Il pourra le changer plus tard.</small>
+                        {{ form_errors(form.plainPassword) }}
+                    </div>
+
+                    <hr class="my-4">
+                    
+                    <div class="d-flex justify-content-end">
+                        <a href="{{ path('kbadha_citoyen_recherche') }}" class="btn btn-light mr-2">
+                            Annuler
+                        </a>
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="fas fa-save mr-2"></i>Enregistrer le citoyen
+                        </button>
+                    </div>
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

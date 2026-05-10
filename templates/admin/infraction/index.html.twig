@@ -74,7 +74,12 @@
                                     <span class="badge badge-light border">{{ infraction.plaqueImmat }}</span>
                                 </td>
                                 <td class="text-right font-weight-bold">
-                                    {{ infraction.montantAmende|number_format(3, ',', ' ') }} DT
+                                    <div>{{ infraction.montantTotal|number_format(3, ',', ' ') }} DT</div>
+                                    {% if infraction.penalite > 0 %}
+                                        <small class="text-danger d-block mt-n1" style="font-size: 0.75rem;">
+                                            + {{ infraction.penalite|number_format(3, ',', ' ') }} (pénalité)
+                                        </small>
+                                    {% endif %}
                                 </td>
                                 <td class="text-center">
                                     {% if infraction.statut == 'a_payer' %}

@@ -1,6 +1,12 @@
 {% extends 'base.html.twig' %}
 {% block title %}Mes Infractions — kbadhapay{% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{ asset('css/payment.css') }}" rel="stylesheet">
+{% endblock %}
+
+
 {% block body %}
 
 <div class="d-sm-flex align-items-center justify-content-between mb-3">
@@ -78,14 +84,14 @@
                                 </td>
                                 <td class="text-center">
                                     {% if i.statut == 'a_payer' %}
-                                        <form action="{{ path('citizen_payer_infraction', {id: i.id}) }}"
-                                              method="POST"
-                                              onsubmit="return confirm('Confirmer le paiement de l\'amende ({{ i.montantAmende }} DT) ?')">
-                                            <input type="hidden" name="_token" value="{{ csrf_token('payer_infraction_' ~ i.id) }}">
-                                            <button type="submit" class="btn btn-warning btn-sm text-dark">
-                                                <i class="fas fa-credit-card mr-1"></i>Payer
-                                            </button>
-                                        </form>
+                                        <button type="button" class="btn btn-warning btn-sm text-dark" 
+                                                data-toggle="modal" 
+                                                data-target="#paymentModal"
+                                                data-id="{{ i.id }}"
+                                                data-type="infraction"
+                                                data-amount="{{ i.montantTotal }}">
+                                            <i class="fas fa-credit-card mr-1"></i>Payer
+                                        </button>
                                     {% else %}
                                         <span class="text-muted small">—</span>
                                     {% endif %}
@@ -99,4 +105,11 @@
     </div>
 </div>
 
+{% include 'fragments/_payment_modals.html.twig' %}
 {% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/payment.js') }}"></script>
+{% endblock %}
+

@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 #[Route('/kbadha', name: 'kbadha_')]
 #[IsGranted('ROLE_KBADHA')]
@@ -278,6 +279,45 @@ class KbadhaController extends AbstractController
 
         return $this->render('kbadha/recu.html.twig', [
             'paiement' => $paiement,
+        ]);
+    }
+    // ─────────────────────────────────────────────────────────────────
+    // 6. CRÉATION D'UN NOUVEAU CITOYEN
+    // ─────────────────────────────────────────────────────────────────
+    #[Route('/citoyen/nouveau', name: 'citoyen_nouveau', methods: ['GET', 'POST'])]
+    public function newCitoyen(
+        Request $request,
+        EntityManagerInterface $em,
+        UserPasswordHasherInterface $hasher
+    ): Response {
+        $user = new \App\Entity\User();
+        // Par défaut, c'est un citoyen
+        $user->setRoles(['ROLE_CITOYEN']);
+        
+        $form = $this->createForm(\App\Form\UserType::class, $user, [
+            'is_edit' => false
+        ]);
+        
+        // On retire le champ des rôles pour le guichet (toujours ROLE_CITOYEN)
+        $form->remove('roles');
+        
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $plainPassword = $form->get('plainPassword')->getData();
+            if ($plainPassword) {
+                $user->setPassword($hasher->hashPassword($user, $plainPassword));
+            }
+
+            $em->persist($user);
+            $em->flush();
+            $this->addFlash('success', 'Le compte citoyen a été créé avec succès.');
+
+            return $this->redirectToRoute('kbadha_citoyen', ['id' => $user->getId()]);
+        }
+
+        return $this->render('kbadha/nouveau_citoyen.html.twig', [
+            'form' => $form,
         ]);
     }
 }

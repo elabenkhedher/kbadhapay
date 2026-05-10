@@ -40,6 +40,29 @@ class UserType extends AbstractType
                 ],
             ])
 
+            // ── Prénom ───────────────────────────────────────────
+            ->add('prenom', TextType::class, [
+                'label' => 'Prénom',
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-control',
+                    'placeholder' => 'Prénom',
+                ],
+                'label_attr' => ['class' => 'font-weight-bold'],
+            ])
+
+            // ── Nom ──────────────────────────────────────────────
+            ->add('nom', TextType::class, [
+                'label' => 'Nom',
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-control',
+                    'placeholder' => 'Nom',
+                ],
+                'label_attr' => ['class' => 'font-weight-bold'],
+            ])
+
+
             // ── Numéro de téléphone ──────────────────────────────
             ->add('telephone', TelType::class, [
                 'label' => 'Numéro de téléphone',

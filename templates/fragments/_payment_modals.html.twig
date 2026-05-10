@@ -1,0 +1,156 @@
+<!-- --- MODAL PAIEMENT --- -->
+<div class="modal fade payment-modal" id="paymentModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content shadow-lg border-0">
+            <div class="modal-header bg-primary text-white p-4">
+                <h5 class="modal-title font-weight-bold">
+                    <i class="fas fa-shield-alt mr-2"></i>Paiement Sécurisé
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-4 bg-light">
+                <div class="row">
+                    <!-- Left Side: Animated Card -->
+                    <div class="col-lg-6 d-flex flex-column align-items-center justify-content-center border-right">
+                        <div class="payment-card-container">
+                            <div class="payment-card">
+                                <!-- Front -->
+                                <div class="card-face card-front">
+                                    <div class="card-chip"></div>
+                                    <i id="cardTypeIcon" class="card-type-icon far fa-credit-card"></i>
+                                    <div id="displayCardNumber" class="card-number-display">**** **** **** ****</div>
+                                    <div class="card-details">
+                                        <div>
+                                            <div class="card-label">Titulaire</div>
+                                            <div id="displayCardName" class="card-value">NOM DU TITULAIRE</div>
+                                        </div>
+                                        <div class="text-right">
+                                            <div class="card-label">Expire</div>
+                                            <div id="displayExpiry" class="card-value">MM/AA</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Back -->
+                                <div class="card-face card-back">
+                                    <div class="black-strip"></div>
+                                    <div class="card-label mb-1">CVV</div>
+                                    <div class="cvv-strip">
+                                        <div id="displayCvv" class="cvv-display">***</div>
+                                    </div>
+                                    <div class="small opacity-50">Signature autorisée</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center mt-3">
+                            <div class="small text-muted mb-2">
+                                <i class="fas fa-lock mr-1"></i>Vos données sont chiffrées (AES-256)
+                            </div>
+                            <div class="d-flex justify-content-center align-items-center opacity-75">
+                                <i class="fab fa-cc-visa fa-2x mx-2"></i>
+                                <i class="fab fa-cc-mastercard fa-2x mx-2"></i>
+                                <i class="fab fa-cc-amex fa-2x mx-2"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Side: Form -->
+                    <div class="col-lg-6">
+                        <form id="paymentForm">
+                            <input type="hidden" id="paymentId">
+                            <input type="hidden" id="paymentType">
+                            <div class="form-group mb-4">
+                                <label class="small font-weight-bold text-uppercase">Nom sur la carte</label>
+                                <input type="text" id="cardName" class="form-control form-control-lg border-0 shadow-sm" placeholder="JEAN DUPONT" required>
+                                <div class="invalid-feedback">Veuillez entrer le nom du titulaire.</div>
+                            </div>
+                            <div class="form-group mb-4">
+                                <label class="small font-weight-bold text-uppercase">Numéro de carte</label>
+                                <div class="input-group">
+                                    <input type="text" id="cardNumber" class="form-control form-control-lg border-0 shadow-sm" placeholder="0000 0000 0000 0000" required>
+                                    <div class="input-group-append">
+                                        <span class="input-group-text bg-white border-0"><i class="fas fa-credit-card text-muted"></i></span>
+                                    </div>
+                                    <div class="invalid-feedback">Numéro de carte invalide.</div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-4">
+                                        <label class="small font-weight-bold text-uppercase">Expiration</label>
+                                        <input type="text" id="expiryDate" class="form-control form-control-lg border-0 shadow-sm" placeholder="MM/AA" required>
+                                        <div class="invalid-feedback">Date invalide.</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-4">
+                                        <label class="small font-weight-bold text-uppercase">CVV <i class="fas fa-question-circle text-muted ml-1" data-toggle="tooltip" title="3 ou 4 chiffres au dos de votre carte"></i></label>
+                                        <input type="password" id="cvv" class="form-control form-control-lg border-0 shadow-sm" placeholder="***" required>
+                                        <div class="invalid-feedback">CVV invalide.</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="submit" id="btnSubmitPayment" class="btn btn-primary btn-lg btn-block shadow font-weight-bold py-3 mt-2" disabled>
+                                <span class="spinner-border spinner-border-sm d-none mr-2"></span>
+                                PAYER MAINTENANT
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer bg-white border-0 justify-content-center py-3">
+                <span class="small text-muted">
+                    <i class="fas fa-shield-check text-success mr-1"></i>Paiement 100% sécurisé via KbadhaPay Gateway
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- --- MODAL 3D SECURE --- -->
+<div class="modal fade" id="modal3DS" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-body p-5 text-center">
+                <div class="mb-4">
+                    <i class="fas fa-shield-alt fa-4x text-primary"></i>
+                </div>
+                <h4 class="font-weight-bold mb-3">Vérification 3D Secure</h4>
+                <p class="text-muted">Un code de vérification a été envoyé à votre mobile. <br>
+                    (Simulé ici: <strong id="otpDisplay"></strong>)</p>
+                
+                <div class="timer-circle">
+                    <svg class="timer-svg" width="100" height="100">
+                        <circle class="timer-bg" cx="50" cy="50" r="45"></circle>
+                        <circle id="timerProgress" class="timer-progress" cx="50" cy="50" r="45"></circle>
+                    </svg>
+                    <div id="timerText" class="timer-text">60s</div>
+                </div>
+
+                <div class="form-group mb-4">
+                    <input type="text" id="otpInput" class="form-control form-control-lg text-center font-weight-bold letter-spacing-lg" maxlength="6" placeholder="000000">
+                </div>
+
+                <button id="btnVerifyOTP" onclick="verifyOTP()" class="btn btn-primary btn-block btn-lg font-weight-bold">VALIDER LE CODE</button>
+                <button id="btnResendOTP" onclick="resendOTP()" class="btn btn-link btn-block mt-3 text-muted small" disabled>Renvoyer le code</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- --- MODAL SUCCÈS --- -->
+<div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-body p-5 text-center">
+                <div class="success-check">
+                    <i class="fas fa-check"></i>
+                </div>
+                <h3 class="font-weight-bold text-success mb-3">Paiement Réussi !</h3>
+                <p class="text-muted mb-4">Votre transaction a été traitée avec succès. Vous allez recevoir un mail de confirmation.</p>
+                <button class="btn btn-success btn-block btn-lg" data-dismiss="modal">RETOUR AU TABLEAU DE BORD</button>
+            </div>
+        </div>
+    </div>
+</div>

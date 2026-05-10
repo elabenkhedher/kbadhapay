@@ -89,8 +89,8 @@ class PoliceController extends AbstractController
             $citoyen = $userRepo->findByCin($cin);
 
             if ($citoyen) {
-                return $this->redirectToRoute('police_nouvelle_infraction', [
-                    'citoyen_id' => $citoyen->getId(),
+                return $this->redirectToRoute('police_citoyen_fiche', [
+                    'id' => $citoyen->getId(),
                 ]);
             }
 
@@ -105,7 +105,51 @@ class PoliceController extends AbstractController
     }
 
     // ─────────────────────────────────────────────────────────────────
-    // 3. ENREGISTRER UNE INFRACTION POUR UN CITOYEN
+    // 3. FICHE CITOYEN (POUR POLICE)
+    // ─────────────────────────────────────────────────────────────────
+    #[Route('/citoyen/{id}', name: 'citoyen_fiche', methods: ['GET'], requirements: ['id' => '\d+'])]
+    public function ficheCitoyen(
+        int $id,
+        UserRepository $userRepo,
+        \App\Repository\TaxeRepository $taxeRepo,
+        \App\Repository\InfractionRepository $infraRepo,
+        \App\Repository\PaiementRepository $paiementRepo
+    ): Response {
+        $citoyen = $userRepo->find($id);
+
+        if (!$citoyen) {
+            $this->addFlash('danger', 'Citoyen introuvable.');
+            return $this->redirectToRoute('police_recherche_citoyen');
+        }
+
+        // --- Same Logic as Kbadha for Unpaid Items ---
+        
+        // Taxes actives non encore payées
+        $toutesLesActives = $taxeRepo->findBy(['actif' => true]);
+        $paiementsTaxe = $paiementRepo->createQueryBuilder('p')
+            ->where('p.user = :citoyen')
+            ->andWhere('p.statut = :paye')
+            ->andWhere('p.taxe IS NOT NULL')
+            ->setParameter('citoyen', $citoyen)
+            ->setParameter('paye', 'paye')
+            ->getQuery()
+            ->getResult();
+
+        $taxesDejaPayees = array_map(fn($p) => $p->getTaxe()?->getId(), $paiementsTaxe);
+        $taxesDues = array_filter($toutesLesActives, fn($t) => !in_array($t->getId(), $taxesDejaPayees, true));
+
+        // Infractions à payer
+        $infractions = $infraRepo->findBy(['user' => $citoyen, 'statut' => 'a_payer']);
+
+        return $this->render('police/citoyen_fiche.html.twig', [
+            'citoyen'     => $citoyen,
+            'taxesDues'   => array_values($taxesDues),
+            'infractions' => $infractions,
+        ]);
+    }
+
+    // ─────────────────────────────────────────────────────────────────
+    // 4. ENREGISTRER UNE INFRACTION POUR UN CITOYEN
     // ─────────────────────────────────────────────────────────────────
     #[Route('/infraction/new/{citoyen_id}', name: 'nouvelle_infraction', methods: ['GET', 'POST'], requirements: ['citoyen_id' => '\d+'])]
     public function nouvelleInfraction(
@@ -134,6 +178,7 @@ class PoliceController extends AbstractController
                     ->setUser($citoyen)
                     ->setAgent($agent)
                     ->setDateInfraction(new \DateTime())
+                    ->setDateEcheance((new \DateTime())->modify('+30 days'))
                     ->setStatut('a_payer');
 
                 $em->persist($infraction);

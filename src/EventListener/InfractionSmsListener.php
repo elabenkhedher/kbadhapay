@@ -31,7 +31,7 @@ class InfractionSmsListener
             . "Ref : #$id\n"
             . "Montant : $montant DT\n"
             . "Echeance : $date\n"
-            . "Paiement :http://192.168.1.7:8000/citizen/infraction/$id/payer";
+            . "Paiement :http://172.20.10.3:8000/citizen/infraction/$id/payer";
 
         $this->smsService->send($user->getTelephone(), $message);
     }

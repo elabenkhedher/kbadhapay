@@ -75,6 +75,16 @@ class InfractionType extends AbstractType
                 'label_attr' => ['class' => 'font-weight-bold'],
             ])
 
+            // ── Date d'échéance ───────────────────────────────────
+            ->add('date_echeance', DateTimeType::class, [
+                'label'      => 'Date d\'échéance',
+                'widget'     => 'single_text',
+                'required'   => false,
+                'attr'       => ['class' => 'form-control'],
+                'label_attr' => ['class' => 'font-weight-bold'],
+                'help'       => 'La pénalité s\'applique automatiquement après cette date.',
+            ])
+
             // ── Statut ───────────────────────────────────────────
             ->add('statut', ChoiceType::class, [
                 'label'       => 'Statut',

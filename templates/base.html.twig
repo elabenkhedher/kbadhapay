@@ -330,15 +330,27 @@
                             {% if app.user %}
                                 <div class="d-flex align-items-center">
                                     <div class="mr-3 text-right d-none d-lg-block">
-                                        <div class="small text-gray-500">Connecté en tant que</div>
+                                        <div class="small text-gray-500">
+                                            Connecté en tant que
+                                            <span class="badge badge-light text-primary font-weight-bold ml-1">
+                                                {% if is_granted('ROLE_ADMIN') %}Administrateur
+                                                {% elseif is_granted('ROLE_POLICE') %}Agent Police
+                                                {% elseif is_granted('ROLE_KBADHA') %}Agent Kbadha
+                                                {% else %}Citoyen{% endif %}
+                                            </span>
+                                        </div>
                                         <div class="font-weight-bold text-gray-800">
-                                            {{ app.user.nom is defined ? app.user.nom : app.user.userIdentifier }}
+                                            {{ app.user.nomComplet }}
+                                            <div class="small text-muted" style="font-weight:400;margin-top:-4px">
+                                                {{ app.user.email ?? app.user.userIdentifier }}
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
-                                         style="width:40px;height:40px;font-size:1.1rem">
-                                        {{ (app.user.nom is defined ? app.user.nom : app.user.userIdentifier)|slice(0,1)|upper }}
+                                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center shadow-sm"
+                                         style="width:40px;height:40px;font-size:1.1rem;border:2px solid #fff">
+                                        {{ (app.user.nomComplet)|slice(0,1)|upper }}
                                     </div>
+
                                 </div>
                             {% else %}
                                 <span class="mr-2 d-none d-lg-inline text-gray-600 small">Invité</span>

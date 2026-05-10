@@ -1,0 +1,172 @@
+/* Modern Payment Interface CSS */
+
+.payment-modal .modal-content {
+    border-radius: 20px;
+    border: none;
+    overflow: hidden;
+}
+
+.payment-card-container {
+    perspective: 1000px;
+    width: 350px;
+    height: 200px;
+    margin: 0 auto 30px;
+}
+
+.payment-card {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transition: transform 0.8s;
+    transform-style: preserve-3d;
+    cursor: pointer;
+}
+
+.payment-card.flipped {
+    transform: rotateY(180deg);
+}
+
+.card-face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 15px;
+    padding: 20px;
+    color: white;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+}
+
+.card-back {
+    transform: rotateY(180deg);
+    background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%);
+}
+
+.card-chip {
+    width: 50px;
+    height: 40px;
+    background: linear-gradient(135deg, #d4af37 0%, #f9d976 100%);
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.card-number-display {
+    font-size: 22px;
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+    height: 30px;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.card-details {
+    display: flex;
+    justify-content: space-between;
+}
+
+.card-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    opacity: 0.8;
+}
+
+.card-value {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.card-type-icon {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 30px;
+}
+
+.black-strip {
+    height: 40px;
+    background: #000;
+    margin: 0 -20px 20px;
+}
+
+.cvv-strip {
+    background: white;
+    height: 40px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 15px;
+    color: #333;
+}
+
+.cvv-display {
+    font-weight: bold;
+    font-style: italic;
+}
+
+/* Animations */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+}
+
+.shake {
+    animation: shake 0.4s ease-in-out;
+}
+
+.success-check {
+    width: 80px;
+    height: 80px;
+    background: #28a745;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    color: white;
+    font-size: 40px;
+    transform: scale(0);
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.success-check.show {
+    transform: scale(1);
+}
+
+/* 3DS Timer */
+.timer-circle {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 20px;
+}
+
+.timer-svg {
+    transform: rotate(-90deg);
+}
+
+.timer-bg {
+    fill: none;
+    stroke: #eee;
+    stroke-width: 5;
+}
+
+.timer-progress {
+    fill: none;
+    stroke: #007bff;
+    stroke-width: 5;
+    stroke-linecap: round;
+    stroke-dasharray: 283;
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 1s linear;
+}
+
+.timer-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 20px;
+    font-weight: bold;
+}

@@ -231,11 +231,12 @@
                 <div class="recu-label"><i class="fas fa-user-tie mr-1 text-primary"></i>Agent Kbadha</div>
                 <div class="recu-value">
                     {% if paiement.encaissePar %}
-                        {{ paiement.encaissePar.cin }}
+                        <strong>{{ paiement.encaissePar.nomComplet }}</strong>
                     {% else %}
                         —
                     {% endif %}
                 </div>
+
             </div>
 
         </div>

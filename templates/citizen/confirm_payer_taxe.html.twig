@@ -35,29 +35,38 @@
                         </div>
                     </div>
 
-                    <form action="{{ path('citizen_payer_taxe', {id: taxe.id}) }}" method="POST">
-                        <input type="hidden" name="_token" value="{{ csrf_token('payer_taxe_' ~ taxe.id) }}">
-                        
-                        <div class="alert alert-info small mb-4">
-                            <i class="fas fa-shield-alt mr-2"></i>
-                            Paiement sécurisé par le système national de télé-paiement KbadhaPay.
-                        </div>
+                    <div class="alert alert-info small mb-4">
+                        <i class="fas fa-shield-alt mr-2"></i>
+                        Paiement sécurisé par le système national de télé-paiement KbadhaPay.
+                    </div>
 
-                        <button type="submit" class="btn btn-primary btn-block btn-lg shadow-sm font-weight-bold py-3">
-                            <i class="fas fa-check-circle mr-2"></i>Procéder au paiement
-                        </button>
-                        
-                        <a href="{{ path('citizen_dashboard') }}" class="btn btn-link btn-block text-muted mt-2">
-                            Annuler
-                        </a>
-                    </form>
+                    <button type="button" class="btn btn-primary btn-block btn-lg shadow-sm font-weight-bold py-3 mb-3"
+                            data-toggle="modal" 
+                            data-target="#paymentModal"
+                            data-id="{{ taxe.id }}"
+                            data-type="taxe"
+                            data-amount="{{ taxe.montant }}">
+                        <i class="fas fa-lock mr-2"></i>Confirmer et Payer {{ taxe.montant|number_format(3, ',', ' ') }} DT
+                    </button>
+                    
+                    <a href="{{ path('citizen_dashboard') }}" class="btn btn-link btn-block text-muted">
+                        Annuler
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+{% include 'fragments/_payment_modals.html.twig' %}
+
 <style>
     .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(78, 115, 223, 0.4) !important; }
 </style>
 {% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/payment.js') }}"></script>
+{% endblock %}
+

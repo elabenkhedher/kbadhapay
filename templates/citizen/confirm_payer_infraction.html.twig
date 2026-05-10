@@ -41,30 +41,39 @@
                         {% endif %}
                     </div>
 
-                    <form action="{{ path('citizen_payer_infraction', {id: infraction.id}) }}" method="POST">
-                        <input type="hidden" name="_token" value="{{ csrf_token('payer_infraction_' ~ infraction.id) }}">
-                        
-                        <div class="alert alert-info small mb-4">
-                            <i class="fas fa-info-circle mr-2"></i>
-                            En cliquant sur le bouton ci-dessous, vous serez débité du montant indiqué via votre mode de paiement sécurisé.
-                        </div>
+                    <div class="alert alert-info small mb-4">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        En cliquant sur le bouton ci-dessous, vous ouvrirez l'interface de paiement sécurisée pour régler votre amende.
+                    </div>
 
-                        <button type="submit" class="btn btn-warning btn-block btn-lg shadow-sm font-weight-bold text-dark py-3">
-                            <i class="fas fa-lock mr-2"></i>Confirmer et Payer maintenant
-                        </button>
-                        
-                        <a href="{{ path('citizen_dashboard') }}" class="btn btn-link btn-block text-muted mt-2">
-                            Annuler et revenir au tableau de bord
-                        </a>
-                    </form>
+                    <button type="button" class="btn btn-warning btn-block btn-lg shadow-sm font-weight-bold text-dark py-3 mb-3"
+                            data-toggle="modal" 
+                            data-target="#paymentModal"
+                            data-id="{{ infraction.id }}"
+                            data-type="infraction"
+                            data-amount="{{ infraction.montantTotal }}">
+                        <i class="fas fa-lock mr-2"></i>Confirmer et Payer {{ infraction.montantTotal|number_format(3, ',', ' ') }} DT
+                    </button>
+                    
+                    <a href="{{ path('citizen_dashboard') }}" class="btn btn-link btn-block text-muted">
+                        Annuler et revenir au tableau de bord
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+{% include 'fragments/_payment_modals.html.twig' %}
+
 <style>
     .card { transition: transform 0.3s; }
     .btn-warning:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(246, 194, 62, 0.4) !important; }
 </style>
 {% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/payment.js') }}"></script>
+{% endblock %}
+
