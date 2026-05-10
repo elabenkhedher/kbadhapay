@@ -70,8 +70,19 @@ class CitizenController extends AbstractController
     #[Route('/taxes', name: 'taxes', methods: ['GET'])]
     public function taxes(TaxeRepository $taxeRepo): Response
     {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $allTaxes = $taxeRepo->findBy(['actif' => true]);
+        $payedIds  = $user->getPayedTaxes();
+
+        $unpaidTaxes = array_filter(
+            $allTaxes,
+            fn($taxe) => !in_array($taxe->getId(), $payedIds)
+        );
+
         return $this->render('citizen/taxes.html.twig', [
-            'taxes' => $taxeRepo->findBy(['actif' => true]),
+            'taxes' => $unpaidTaxes,
         ]);
     }
 
@@ -124,6 +135,7 @@ class CitizenController extends AbstractController
             ->setDateSoumission(new \DateTime())
             ->setSujet('Paiement taxe : ' . $taxe->getNomTaxe());
 
+        $user->addPayedTaxe($taxe->getId());
         $em->persist($paiement);
         $em->flush();
 

@@ -59,6 +59,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $prenom = null;
 
+    #[ORM\Column(type: 'json', nullable: true)]
+    private ?array $payedTaxes = [];
+
     public function getId(): ?int
     {
         return $this->id;
@@ -231,6 +234,41 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             return $this->cin;
         }
         return trim(($this->prenom ?? '') . ' ' . ($this->nom ?? ''));
+    }
+
+    public function getPayedTaxes(): array
+    {
+        return $this->payedTaxes ?? [];
+    }
+
+    public function setPayedTaxes(?array $payedTaxes): static
+    {
+        $this->payedTaxes = $payedTaxes;
+
+        return $this;
+    }
+
+    public function addPayedTaxe(int $taxeId): static
+    {
+        if (!in_array($taxeId, $this->payedTaxes ?? [])) {
+            $this->payedTaxes[] = $taxeId;
+        }
+
+        return $this;
+    }
+
+    public function removePayedTaxe(int $taxeId): static
+    {
+        $this->payedTaxes = array_values(
+            array_filter($this->payedTaxes ?? [], fn($id) => $id !== $taxeId)
+        );
+
+        return $this;
+    }
+
+    public function hasPaidTaxe(int $taxeId): bool
+    {
+        return in_array($taxeId, $this->payedTaxes ?? []);
     }
 
 }

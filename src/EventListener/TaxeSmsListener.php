@@ -31,7 +31,7 @@ class TaxeSmsListener
                  . "Ref : #$id\n"
                  . "Montant : $montant DT\n"
                  . "Echeance : $date\n"
-                 . "Paiement : kbadhapay.tn/citizen/taxe/$id/payer";
+                 . "Paiement : http://172.20.10.3:8000/citizen/taxe/$id/payer";
 
         $this->smsService->send($user->getTelephone(), $message);
     }
