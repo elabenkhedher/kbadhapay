@@ -27,15 +27,6 @@ class PaymentController extends AbstractController
             return new JsonResponse(['status' => 'failed', 'message' => 'Numéro de carte invalide (Luhn)'], 400);
         }
 
-        // Simulation de scénarios basés sur le numéro de carte
-        if ($cardNumber === '4000000000000002') {
-            return new JsonResponse(['status' => 'failed', 'message' => 'Paiement refusé par la banque']);
-        }
-
-        if ($cardNumber === '4000002500003155') {
-            return new JsonResponse(['status' => '3ds_required']);
-        }
-
         // SI SUCCÈS (4242... ou autre carte valide)
         if ($paymentId && $paymentType) {
             /** @var \App\Entity\User $user */

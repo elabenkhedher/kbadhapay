@@ -123,7 +123,9 @@ class CitizenController extends AbstractController
             ->setDatePaiement(new \DateTime())
             ->setDateSoumission(new \DateTime())
             ->setSujet('Paiement taxe : ' . $taxe->getNomTaxe());
-
+        // Marquer Taxe comme payée
+        $taxe->setStatut('paye');
+        
         $em->persist($paiement);
         $em->flush();
 
@@ -351,7 +353,6 @@ class CitizenController extends AbstractController
                 $prefs = [
                     'sms'   => $request->request->has('pref_sms'),
                     'email' => $request->request->has('pref_email'),
-                    'push'  => $request->request->has('pref_push'),
                 ];
                 $citoyen->setPreferencesNotification($prefs);
                 $em->flush();
@@ -367,25 +368,6 @@ class CitizenController extends AbstractController
         ]);
     }
 
-    // ─────────────────────────────────────────────────────────────────
-    // 10. SOUSCRIPTION WEB PUSH API
-    // ─────────────────────────────────────────────────────────────────
-    #[Route('/push-subscribe', name: 'push_subscribe', methods: ['POST'])]
-    public function pushSubscribe(Request $request, EntityManagerInterface $em): \Symfony\Component\HttpFoundation\JsonResponse
-    {
-        /** @var \App\Entity\User $citoyen */
-        $citoyen = $this->getUser();
-
-        $data = json_decode($request->getContent(), true);
-
-        if ($data) {
-            $citoyen->setPushSubscription($data);
-            $em->flush();
-            return $this->json(['success' => true]);
-        }
-
-        return $this->json(['success' => false], 400);
-    }
 
     #[Route('/documents', name: 'app_profile_documents', methods: ['GET', 'POST'])]
     public function uploadDocuments(
