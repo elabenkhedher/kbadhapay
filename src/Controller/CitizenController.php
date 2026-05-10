@@ -96,6 +96,7 @@ class CitizenController extends AbstractController
         EntityManagerInterface $em,
         Request $request
     ): Response {
+        $user = $this->getUser();
         $taxe = $taxeRepo->find($id);
         if (!$taxe || !$taxe->isActif()) {
             $this->addFlash('danger', 'Taxe introuvable ou inactive.');
