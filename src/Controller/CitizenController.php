@@ -70,16 +70,19 @@ class CitizenController extends AbstractController
     #[Route('/taxes', name: 'taxes', methods: ['GET'])]
     public function taxes(TaxeRepository $taxeRepo): Response
     {
-        /** @var \App\Entity\User $user */
+        /** @var User $user */
         $user = $this->getUser();
 
         $allTaxes = $taxeRepo->findBy(['actif' => true]);
         $payedIds  = $user->getPayedTaxes();
 
-        dd([
-            'user_id'    => $user->getId(),
-            'payed_ids'  => $payedIds,
-            'all_count'  => count($allTaxes),
+        $unpaidTaxes = array_filter(
+            $allTaxes,
+            fn($taxe) => !in_array($taxe->getId(), array_map('intval', $payedIds))
+        );
+
+        return $this->render('citizen/taxes.html.twig', [
+            'taxes' => $unpaidTaxes,
         ]);
     }
 
